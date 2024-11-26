@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Authing, Friending, Posting, Sessioning } from "./app";
+import { Authing, Posting, Profiling, Sessioning, Threading } from "./app";
 import { PostOptions } from "./concepts/posting";
 import { SessionDoc } from "./concepts/sessioning";
 import Responses from "./responses";
@@ -13,7 +13,9 @@ import { z } from "zod";
  * Web server routes for the app. Implements synchronizations between concepts.
  */
 class Routes {
-  // Synchronize the concepts from `app.ts`.
+  // Profiling question and options
+  private readonly profilingQuestion = "What are your goals in Fam.ly?";
+  private readonly profilingOptions = ["Learn family history", "Connect more often", "Learn others' interests", "Learn about identity"];
 
   @Router.get("/session")
   async getSessionUser(session: SessionDoc) {
@@ -27,15 +29,43 @@ class Routes {
   }
 
   @Router.get("/users/:username")
+  /*
   @Router.validate(z.object({ username: z.string().min(1) }))
   async getUser(username: string) {
     return await Authing.getUserByUsername(username);
   }
 
   @Router.post("/users")
-  async createUser(session: SessionDoc, username: string, password: string) {
+  @Router.validate(
+    z.object({
+      username: z.string().min(1),
+      password: z.string().min(1),
+      profileResponses: z.array(z.string()).optional(),
+    }),
+  )
+  */
+  async createUser(session: SessionDoc, username: string, password: string, profileResponses?: string[]) {
     Sessioning.isLoggedOut(session);
-    return await Authing.create(username, password);
+
+    if (profileResponses && profileResponses.length > 0) {
+      const invalidChoices = profileResponses.filter((choice) => !this.profilingOptions.includes(choice));
+      if (invalidChoices.length > 0) {
+        throw new Error(`Invalid choices: ${invalidChoices.join(", ")}`);
+      }
+    }
+
+    const result = await Authing.create(username, password);
+    const user = result.user;
+
+    if (!user) {
+      throw new Error("User creation failed.");
+    }
+
+    if (profileResponses && profileResponses.length > 0) {
+      await Profiling.ask(user._id, this.profilingQuestion, profileResponses);
+    }
+
+    return { msg: "User created successfully!", user };
   }
 
   @Router.patch("/users/username")
@@ -70,6 +100,31 @@ class Routes {
     return { msg: "Logged out!" };
   }
 
+  /**
+   * Profile Update: Update the profiling responses for a user.
+   */
+  @Router.patch("/profile")
+  /*
+  @Router.validate(
+    z.object({
+      selectedChoices: z.array(z.string()),
+    }),
+  )
+  async updateProfile(session: SessionDoc, selectedChoices: string[]) {
+    const userId = Sessioning.getUser(session);
+
+    // Validate provided profiling choices
+    const invalidChoices = selectedChoices.filter((choice) => !this.profilingOptions.includes(choice));
+    if (invalidChoices.length > 0) {
+      throw new Error(`Invalid choices: ${invalidChoices.join(", ")}`);
+    }
+
+    // Update the profile for the specific question
+    await Profiling.updateProfile(userId, this.profilingQuestion, selectedChoices);
+
+    return { msg: "Profile updated successfully!" };
+  }
+  */
   @Router.get("/posts")
   @Router.validate(z.object({ author: z.string().optional() }))
   async getPosts(author?: string) {
@@ -84,9 +139,12 @@ class Routes {
   }
 
   @Router.post("/posts")
-  async createPost(session: SessionDoc, content: string, options?: PostOptions) {
+  async createPost(session: SessionDoc, content: string, thread: ObjectId, options?: PostOptions) {
     const user = Sessioning.getUser(session);
-    const created = await Posting.create(user, content, options);
+    const created = await Posting.create(user, content, thread, options);
+    if (created.post != null) {
+      await Threading.addToThread(created.post._id);
+    }
     return { msg: created.msg, post: await Responses.post(created.post) };
   }
 
@@ -106,51 +164,35 @@ class Routes {
     return Posting.delete(oid);
   }
 
-  @Router.get("/friends")
-  async getFriends(session: SessionDoc) {
+  //Threading Routes
+  @Router.post("/threads")
+  //Note: removed function to create post when creating a thread!
+  async createThread(session: SessionDoc, title: string, threadContent: Array<ObjectId>, members: Array<ObjectId>) {
     const user = Sessioning.getUser(session);
-    return await Authing.idsToUsernames(await Friending.getFriends(user));
+    const thread = await Threading.createThread(user, title, threadContent, members);
+    return { msg: thread.msg, thread: await Responses.thread(thread.thread) };
   }
 
-  @Router.delete("/friends/:friend")
-  async removeFriend(session: SessionDoc, friend: string) {
+  @Router.delete("/threads")
+  async deleteThread(session: SessionDoc, _id: ObjectId) {
     const user = Sessioning.getUser(session);
-    const friendOid = (await Authing.getUserByUsername(friend))._id;
-    return await Friending.removeFriend(user, friendOid);
+    await Threading.assertCreatorIsUser(_id, user);
+    const thread = await Threading.deleteThread(_id);
+    return { msg: thread.msg };
   }
 
-  @Router.get("/friend/requests")
-  async getRequests(session: SessionDoc) {
+  @Router.patch("/threads/:id")
+  async editThreadTitle(session: SessionDoc, _id: ObjectId, title: string) {
     const user = Sessioning.getUser(session);
-    return await Responses.friendRequests(await Friending.getRequests(user));
+    await Threading.assertCreatorIsUser(_id, user);
+    const thread = await Threading.editThreadTitle(_id, title);
+    return { msg: thread.msg };
   }
 
-  @Router.post("/friend/requests/:to")
-  async sendFriendRequest(session: SessionDoc, to: string) {
-    const user = Sessioning.getUser(session);
-    const toOid = (await Authing.getUserByUsername(to))._id;
-    return await Friending.sendRequest(user, toOid);
-  }
-
-  @Router.delete("/friend/requests/:to")
-  async removeFriendRequest(session: SessionDoc, to: string) {
-    const user = Sessioning.getUser(session);
-    const toOid = (await Authing.getUserByUsername(to))._id;
-    return await Friending.removeRequest(user, toOid);
-  }
-
-  @Router.put("/friend/accept/:from")
-  async acceptFriendRequest(session: SessionDoc, from: string) {
-    const user = Sessioning.getUser(session);
-    const fromOid = (await Authing.getUserByUsername(from))._id;
-    return await Friending.acceptRequest(fromOid, user);
-  }
-
-  @Router.put("/friend/reject/:from")
-  async rejectFriendRequest(session: SessionDoc, from: string) {
-    const user = Sessioning.getUser(session);
-    const fromOid = (await Authing.getUserByUsername(from))._id;
-    return await Friending.rejectRequest(fromOid, user);
+  @Router.get("/thread/:id")
+  async getThreadPosts(_id: ObjectId) {
+    const threads = await Threading.getThreadPosts(_id);
+    return Responses.threads(threads.threads);
   }
 }
 
