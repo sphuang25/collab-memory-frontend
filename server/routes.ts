@@ -29,7 +29,6 @@ class Routes {
   }
 
   @Router.get("/users/:username")
-  /*
   @Router.validate(z.object({ username: z.string().min(1) }))
   async getUser(username: string) {
     return await Authing.getUserByUsername(username);
@@ -43,7 +42,6 @@ class Routes {
       profileResponses: z.array(z.string()).optional(),
     }),
   )
-  */
   async createUser(session: SessionDoc, username: string, password: string, profileResponses?: string[]) {
     Sessioning.isLoggedOut(session);
 
