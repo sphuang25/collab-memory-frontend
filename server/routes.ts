@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Authing, Posting, Profiling, Sessioning, Threading } from "./app";
+import { Authing, Familying, Posting, Profiling, Sessioning, Threading } from "./app";
 import { PostOptions } from "./concepts/posting";
 import { SessionDoc } from "./concepts/sessioning";
 import Responses from "./responses";
@@ -191,6 +191,64 @@ class Routes {
   async getThreadPosts(_id: ObjectId) {
     const threads = await Threading.getThreadPosts(_id);
     return Responses.threads(threads.threads);
+  }
+
+  @Router.post("/family/request")
+  async sendJoinFamilyRequest(session: SessionDoc, familyID: ObjectId) {
+    const user = Sessioning.getUser(session);
+    const request = await Familying.sendRequest(user, familyID);
+    return { msg: request.msg };
+  }
+
+  @Router.patch("/family/request/accept")
+  async acceptJoinFamilyRequest(session: SessionDoc, familyID: ObjectId) {
+    const user = Sessioning.getUser(session);
+    const request = await Familying.acceptRequest(user, familyID);
+    return { msg: request.msg };
+  }
+
+  @Router.patch("/family/request/reject")
+  async rejectJoinFamilyRequest(session: SessionDoc, familyID: ObjectId) {
+    const user = Sessioning.getUser(session);
+    const request = await Familying.rejectRequest(user, familyID);
+    return { msg: request.msg };
+  }
+
+  @Router.delete("/family/request")
+  async removeJoinFamilyRequest(session: SessionDoc, familyID: ObjectId) {
+    const user = Sessioning.getUser(session);
+    const request = await Familying.removeRequest(user, familyID);
+    return { msg: request.msg };
+  }
+
+  @Router.post("/family")
+  async createFamily(session: SessionDoc, familyTitle: string) {
+    const user = Sessioning.getUser(session);
+    const familyCreate = await Familying.createFamily(user, familyTitle);
+    return { msg: familyCreate.msg };
+  }
+
+  @Router.delete("/family")
+  async deleteFamily(session: SessionDoc, familyID: ObjectId) {
+    const user = Sessioning.getUser(session);
+    const familyDelete = await Familying.deleteFamily(user, familyID);
+    return { msg: familyDelete.msg };
+  }
+
+  @Router.delete("/family/member")
+  async deleteFamilyMember(session: SessionDoc, familyID: ObjectId, toDelete: ObjectId) {
+    const user = Sessioning.getUser(session);
+    await Familying.isInFamily(user, familyID);
+    const familyMemberDelete = await Familying.removeFamilyMember(toDelete, familyID);
+    return { msg: familyMemberDelete.msg };
+  }
+
+  @Router.get("/family/member")
+  async getFamilyMember(session: SessionDoc, familyID: ObjectId) {
+    const user = Sessioning.getUser(session);
+    await Familying.isInFamily(user, familyID);
+    const familyMember = await Familying.getFamilyMember(familyID);
+    return { msg: "Get family member success!" };
   }
 }
 

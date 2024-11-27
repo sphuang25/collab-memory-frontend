@@ -96,6 +96,18 @@ export default class FamilyingConcept {
     return { msg: "Removed request!" };
   }
 
+  async createFamily(userID: ObjectId, familyTitle: string) {
+    await this.families.createOne({ familyTitle: familyTitle, members: [userID] });
+    return { msg: `Family ${familyTitle} is created!` };
+  }
+
+  async deleteFamily(userID: ObjectId, familyID: ObjectId) {
+    await this.isInFamily(userID, familyID);
+    await Promise.all([this.families.deleteOne({ familyID: familyID }), this.requests.deleteMany({ familyID: familyID })]);
+
+    return { msg: `Family ${familyID} is deleted!` };
+  }
+
   async removeFamilyMember(userID: ObjectId, familyID: ObjectId) {
     const family = await this.families.readOne({ _id: familyID });
     if (family === null) {
@@ -109,6 +121,15 @@ export default class FamilyingConcept {
       }
     }
     return { msg: "Removed member from family!" };
+  }
+
+  async getFamilyMember(familyID: ObjectId) {
+    const family = await this.families.readOne({ _id: familyID });
+    if (family === null) {
+      throw new FamilyNotExistError(familyID);
+    } else {
+      return family.members;
+    }
   }
 
   async isInFamily(userID: ObjectId, familyID: ObjectId) {
