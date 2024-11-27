@@ -248,7 +248,8 @@ class Routes {
     const user = Sessioning.getUser(session);
     await Familying.isInFamily(user, familyID);
     const familyMember = await Familying.getFamilyMember(familyID);
-    return { msg: "Get family member success!" };
+    const familyMemberUsername = await Authing.idsToUsernames(familyMember);
+    return { msg: "Get family member success!", names: familyMemberUsername };
   }
 }
 
