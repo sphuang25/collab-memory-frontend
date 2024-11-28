@@ -193,6 +193,21 @@ class Routes {
     return Responses.threads(threads.threads);
   }
 
+  @Router.get("/family/request")
+  async getUserRequest(session: SessionDoc) {
+    const user = Sessioning.getUser(session);
+    const requests = await Familying.getRequests(user);
+    return requests;
+  }
+
+  @Router.get("/family/request/:id")
+  async getFamilyRequest(session: SessionDoc, familyID: ObjectId) {
+    const user = Sessioning.getUser(session);
+    await Familying.assertInFamily(user, familyID);
+    const requests = await Familying.getFamilyRequests(familyID);
+    return requests;
+  }
+
   @Router.post("/family/request")
   async sendJoinFamilyRequest(session: SessionDoc, familyID: ObjectId) {
     const user = Sessioning.getUser(session);
@@ -221,6 +236,13 @@ class Routes {
     return { msg: request.msg };
   }
 
+  @Router.get("/family")
+  async getFamily(session: SessionDoc) {
+    const user = Sessioning.getUser(session);
+    const family = await Familying.getFamilies(user);
+    return family;
+  }
+
   @Router.post("/family")
   async createFamily(session: SessionDoc, familyTitle: string) {
     const user = Sessioning.getUser(session);
@@ -238,7 +260,7 @@ class Routes {
   @Router.delete("/family/member")
   async deleteFamilyMember(session: SessionDoc, familyID: ObjectId, toDelete: ObjectId) {
     const user = Sessioning.getUser(session);
-    await Familying.isInFamily(user, familyID);
+    await Familying.assertInFamily(user, familyID);
     const familyMemberDelete = await Familying.removeFamilyMember(toDelete, familyID);
     return { msg: familyMemberDelete.msg };
   }
@@ -246,9 +268,13 @@ class Routes {
   @Router.get("/family/member")
   async getFamilyMember(session: SessionDoc, familyID: ObjectId) {
     const user = Sessioning.getUser(session);
-    await Familying.isInFamily(user, familyID);
+    await Familying.assertInFamily(user, familyID);
     const familyMember = await Familying.getFamilyMember(familyID);
-    const familyMemberUsername = await Authing.idsToUsernames(familyMember);
+    const familyMemberUsername = await Authing.idsToUsernames(
+      familyMember.map((x) => {
+        return x.userID;
+      }),
+    );
     return { msg: "Get family member success!", names: familyMemberUsername };
   }
 }

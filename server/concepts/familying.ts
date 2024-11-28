@@ -4,7 +4,11 @@ import { NotAllowedError, NotFoundError } from "./errors";
 
 export interface FamilyDoc extends BaseDoc {
   familyTitle: string;
-  members: ObjectId[];
+}
+
+export interface MemberDoc extends BaseDoc {
+  familyID: ObjectId;
+  userID: ObjectId;
 }
 
 export interface FamilyRequestDoc extends BaseDoc {
@@ -19,6 +23,7 @@ export interface FamilyRequestDoc extends BaseDoc {
 export default class FamilyingConcept {
   public readonly families: DocCollection<FamilyDoc>;
   public readonly requests: DocCollection<FamilyRequestDoc>;
+  public readonly members: DocCollection<MemberDoc>;
 
   /**
    * Make an instance of Friending.
@@ -26,19 +31,12 @@ export default class FamilyingConcept {
   constructor(collectionName: string) {
     this.families = new DocCollection<FamilyDoc>(collectionName);
     this.requests = new DocCollection<FamilyRequestDoc>(collectionName + "_requests");
+    this.members = new DocCollection<MemberDoc>(collectionName + "_members");
   }
 
   private async assertNotInFamily(userID: ObjectId, familyID: ObjectId) {
-    const family = await this.families.readOne({ _id: familyID });
-    if (family === null) {
-      throw new FamilyNotExistError(familyID);
-    } else if (
-      family.members
-        .map((x) => {
-          return x.toString();
-        })
-        .includes(userID.toString())
-    ) {
+    const family = await this.members.readOne({ familyID: familyID, userID: userID });
+    if (family !== null) {
       throw new AlreadyInFamilyError(userID, familyID);
     }
   }
@@ -61,7 +59,7 @@ export default class FamilyingConcept {
     if (family === null) {
       throw new FamilyNotExistError(familyID);
     } else {
-      family.members.push(userID);
+      await this.members.createOne({ userID: userID, familyID: familyID });
     }
   }
 
@@ -71,6 +69,19 @@ export default class FamilyingConcept {
       throw new FamilyRequestNotFoundError(userID, familyID);
     }
     return request;
+  }
+
+  async getFamilies(userID: ObjectId) {
+    const families = await this.members.readMany({ userID: userID });
+    return families;
+  }
+
+  async getRequests(userID: ObjectId) {
+    await this.requests.readMany({ userID: userID, status: "pending" });
+  }
+
+  async getFamilyRequests(familyID: ObjectId) {
+    await this.requests.readMany({ familyID: familyID, status: "pending" });
   }
 
   async sendRequest(userID: ObjectId, familyID: ObjectId) {
@@ -97,13 +108,14 @@ export default class FamilyingConcept {
   }
 
   async createFamily(userID: ObjectId, familyTitle: string) {
-    await this.families.createOne({ familyTitle: familyTitle, members: [userID] });
+    const family = await this.families.createOne({ familyTitle: familyTitle });
+    await this.addToFamily(userID, family);
     return { msg: `Family ${familyTitle} is created!` };
   }
 
   async deleteFamily(userID: ObjectId, familyID: ObjectId) {
-    await this.isInFamily(userID, familyID);
-    await Promise.all([this.families.deleteOne({ familyID: familyID }), this.requests.deleteMany({ familyID: familyID })]);
+    await this.assertInFamily(userID, familyID);
+    await Promise.all([this.families.deleteOne({ familyID: familyID }), this.requests.deleteMany({ familyID: familyID }), this.members.deleteMany({ familyID: familyID })]);
 
     return { msg: `Family ${familyID} is deleted!` };
   }
@@ -113,12 +125,7 @@ export default class FamilyingConcept {
     if (family === null) {
       throw new FamilyNotExistError(familyID);
     } else {
-      for (let i = 0; i < family.members.length; i++) {
-        if (family.members[i].toString() == userID.toString()) {
-          family.members.splice(i, 1);
-          break;
-        }
-      }
+      await this.members.deleteOne({ familyID: familyID, userID: userID });
     }
     return { msg: "Removed member from family!" };
   }
@@ -128,20 +135,17 @@ export default class FamilyingConcept {
     if (family === null) {
       throw new FamilyNotExistError(familyID);
     } else {
-      return family.members;
+      return await this.members.readMany({ familyID: familyID });
     }
   }
 
-  async isInFamily(userID: ObjectId, familyID: ObjectId) {
+  async assertInFamily(userID: ObjectId, familyID: ObjectId) {
     const family = await this.families.readOne({ _id: familyID });
+    const inFamily = await this.members.readMany({ familyID: familyID, userID: userID });
     if (family === null) {
       throw new FamilyNotExistError(familyID);
-    } else {
-      return family.members
-        .map((x) => {
-          return x.toString();
-        })
-        .includes(userID.toString());
+    } else if (inFamily === null) {
+      throw new NotInFamilyError(userID, familyID);
     }
   }
 }
@@ -158,6 +162,15 @@ export class AlreadyInFamilyError extends NotAllowedError {
     public readonly familyID: ObjectId,
   ) {
     super("{0} is already in family {1}!", userID, familyID);
+  }
+}
+
+export class NotInFamilyError extends NotAllowedError {
+  constructor(
+    public readonly userID: ObjectId,
+    public readonly familyID: ObjectId,
+  ) {
+    super("{0} is not in family {1}!", userID, familyID);
   }
 }
 
