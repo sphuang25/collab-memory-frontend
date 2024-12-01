@@ -7,6 +7,7 @@ import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
 import SettingView from "../views/SettingView.vue";
+import ThreadHomeView from "../views/ThreadHomeView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -28,6 +29,19 @@ const router = createRouter({
       component: FamilyView,
       meta: { requiresAuth: true },
     },
+    {
+      path: "/threads",
+      name: "Threads",
+      component: ThreadHomeView,
+      meta: { requiresAuth: true },
+    },
+    /*
+    {
+      path: "/profile",
+      name: "Profile",
+      component: ProfileView,
+      meta: { requiresAuth: true },
+    },*/
     {
       path: "/login",
       name: "Login",

@@ -170,6 +170,12 @@ class Routes {
   }
 
   //Threading Routes
+  @Router.get("/threads")
+  async getThreads() {
+    const threads = await Threading.getThreads();
+    return Responses.threads(threads);
+  }
+
   @Router.post("/threads")
   //Note: removed function to create post when creating a thread!
   async createThread(session: SessionDoc, title: string, threadContent: string, members: string) {

@@ -23,6 +23,12 @@ export default class ThreadingConcept {
     this.threads = new DocCollection<ThreadDoc>(collectionName);
   }
 
+  //get all threads
+  async getThreads() {
+    // Returns all threads from newest to oldest
+    return await this.threads.readMany({}, { sort: { dateCreated: -1 } });
+  }
+
   //creates new thread
   async createThread(creator: ObjectId, title: string, origContent: Array<ObjectId>, origMembers: Array<ObjectId>) {
     let content: Array<ObjectId>;
