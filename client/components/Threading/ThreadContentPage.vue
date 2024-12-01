@@ -11,8 +11,8 @@ import "primeicons/primeicons.css";
 //npm install primeicons
 
 const route = useRoute();
-const threadId = route.params.id;
-const thread: ThreadDoc = ref();
+const threadId = String(route.params.id);
+const thread = ref();
 const posts = ref();
 const loaded = ref(false);
 async function getThread(id: string) {
@@ -33,7 +33,6 @@ async function getThreadContent(id: string) {
     return;
   }
   posts.value = contentResult;
-  console.log(contentResult);
 }
 //let editing = ref("");
 //let searchAuthor = ref("");
@@ -74,7 +73,7 @@ onBeforeMount(async () => {
       </div>
     </div>
     <div class="postBox">
-      <form @submit.prevent="makePost()" class="postForm">
+      <form class="postForm">
         <div class="postText">
           <textarea class="textInput" placeholder="Contribute to thread"></textarea>
         </div>
