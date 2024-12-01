@@ -1,8 +1,7 @@
 <script setup lang="ts">
 const props = defineProps(["thread"]);
-const emit = defineEmits(["refreshThreads"]);
-//
 import { format, formatDistanceToNow } from "date-fns";
+import router from "@/router";
 
 const formatDateDashed = (date: string) => {
   return format(new Date(date), "yyyy-MM-dd"); // Formats as 2024-11-16
@@ -24,7 +23,7 @@ const randomColor = getRandomColor();
 </script>
 
 <template>
-  <div class="card" :style="{ backgroundColor: randomColor }">
+  <div class="card" :style="{ backgroundColor: randomColor }" @click="router.push(`/threads/${props.thread._id}`)">
     <div class="cardTitle">
       <p class="threadTitle">{{ props.thread.title }}</p>
       <p>{{ props.thread.content.length }} Discussions</p>
@@ -66,6 +65,11 @@ p {
   width: 100%;
   border-radius: 1em;
   padding: 5px;
+}
+
+.card:hover {
+  filter: brightness(90%);
+  cursor: pointer;
 }
 
 .author {

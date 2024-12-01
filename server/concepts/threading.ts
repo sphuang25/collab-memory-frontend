@@ -29,6 +29,11 @@ export default class ThreadingConcept {
     return await this.threads.readMany({}, { sort: { dateCreated: -1 } });
   }
 
+  //get thread with given id
+  async getThread(_id: ObjectId) {
+    return await this.threads.readOne({ _id });
+  }
+
   //creates new thread
   async createThread(creator: ObjectId, title: string, origContent: Array<ObjectId>, origMembers: Array<ObjectId>) {
     let content: Array<ObjectId>;
@@ -74,10 +79,13 @@ export default class ThreadingConcept {
   // Add item to thread
   async addToThread(_id: ObjectId, itemId: ObjectId) {
     const thread = await this.threads.readOne({ _id });
-    if (thread != null && !thread.content.includes(itemId)) {
-      thread.content.push(itemId);
-      await this.threads.partialUpdateOne({ _id }, { content: thread.content });
-      return { msg: "Post added to thread!" };
+    if (thread != null) {
+      const contentStrings = thread.content.map((c) => c.toString());
+      if (!contentStrings.includes(itemId.toString())) {
+        thread.content.push(itemId);
+        await this.threads.partialUpdateOne({ _id }, { content: thread.content });
+        return { msg: "Post added to thread!" };
+      }
     }
     return { msg: "Post unable to be added to thread!" };
   }
@@ -85,13 +93,13 @@ export default class ThreadingConcept {
   // Remove post from thread
   async removeFromThread(_id: ObjectId, itemId: ObjectId) {
     const thread = await this.threads.readOne({ _id });
-    console.log(thread);
-    console.log(itemId);
-    if (thread != null && thread.content.includes(itemId)) {
-      thread.content = thread.content.filter((id) => id.toString() !== itemId.toString());
-      console.log("t", thread.content);
-      await this.threads.partialUpdateOne({ _id }, { content: thread.content });
-      return { msg: "Post remove from thread!" };
+    if (thread != null) {
+      const contentStrings = thread.content.map((c) => c.toString());
+      if (contentStrings.includes(itemId.toString())) {
+        thread.content = thread.content.filter((id) => id.toString() !== itemId.toString());
+        await this.threads.partialUpdateOne({ _id }, { content: thread.content });
+        return { msg: "Post remove from thread!" };
+      }
     }
     return { msg: "Post unable to be removed from thread!" };
   }

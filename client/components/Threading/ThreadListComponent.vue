@@ -9,9 +9,7 @@ import ThreadCreateForm from "@/components/Threading/CreateThreadForm.vue";
 const { isLoggedIn } = storeToRefs(useUserStore());
 
 const loaded = ref(false);
-let threads = ref<Array<ThreadDoc>>([]);
-//let editing = ref("");
-//let searchAuthor = ref("");
+let threads = ref();
 
 async function getThreads() {
   let threadResults;
@@ -22,10 +20,6 @@ async function getThreads() {
   }
   threads.value = threadResults;
 }
-
-/*function updateEditing(id: string) {
-  editing.value = id;
-}*/
 
 onBeforeMount(async () => {
   await getThreads();

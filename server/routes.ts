@@ -5,6 +5,7 @@ import { Router, getExpressRouter } from "./framework/router";
 import { Authing, Familying, Posting, Profiling, Sessioning, Threading } from "./app";
 import { PostDoc, PostOptions } from "./concepts/posting";
 import { SessionDoc } from "./concepts/sessioning";
+import { ThreadDoc } from "./concepts/threading";
 import Responses from "./responses";
 
 import { z } from "zod";
@@ -171,9 +172,23 @@ class Routes {
 
   //Threading Routes
   @Router.get("/threads")
-  async getThreads() {
+  async getThreads(session: SessionDoc) {
+    const user = Sessioning.getUser(session);
     const threads = await Threading.getThreads();
-    return Responses.threads(threads);
+    const userThreads: Array<ThreadDoc> = [];
+    for (const t of threads) {
+      if (t.members.includes(user) || t.creator.toString() === user.toString()) {
+        userThreads.push(t);
+      }
+    }
+    return Responses.threads(userThreads);
+  }
+
+  @Router.get("/thread/:id")
+  async getThreadById(id: string) {
+    const oid = new ObjectId(id);
+    const thread = await Threading.getThread(oid);
+    return Responses.thread(thread);
   }
 
   @Router.post("/threads")
