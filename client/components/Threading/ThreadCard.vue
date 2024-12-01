@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { useUserStore } from "@/stores/user";
-import { storeToRefs } from "pinia";
-
 const props = defineProps(["thread"]);
 const emit = defineEmits(["refreshThreads"]);
-const { currentUsername } = storeToRefs(useUserStore());
+//
 import { format, formatDistanceToNow } from "date-fns";
 
 const formatDateDashed = (date: string) => {
