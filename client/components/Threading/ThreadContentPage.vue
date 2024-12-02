@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
-import { onBeforeMount, ref } from "vue";
+import { computed, onBeforeMount, ref } from "vue";
 import { fetchy } from "@/utils/fetchy";
 import { format, formatDistanceToNow } from "date-fns";
 import PostComponent from "@/components/Post/PostComponent.vue";
@@ -9,12 +9,15 @@ const { isLoggedIn } = storeToRefs(useUserStore());
 import { useRoute } from "vue-router";
 import "primeicons/primeicons.css";
 //npm install primeicons
-
+const currentRoute = useRoute();
+const currentRouteName = computed(() => currentRoute.name);
 const route = useRoute();
 const threadId = String(route.params.id);
 const thread = ref();
 const posts = ref();
 const loaded = ref(false);
+const content = ref("");
+const contentType = ref("");
 async function getThread(id: string) {
   let threadResult;
   try {
@@ -34,8 +37,28 @@ async function getThreadContent(id: string) {
   }
   posts.value = contentResult;
 }
-//let editing = ref("");
-//let searchAuthor = ref("");
+
+async function makePost(content: string) {
+  const id = threadId;
+  try {
+    await fetchy("/api/posts", "POST", {
+      body: { content, id, contentType: contentType.value },
+    });
+  } catch (_) {
+    return;
+  }
+  await getThreadContent(id);
+  emptyForm();
+}
+
+const emptyForm = () => {
+  content.value = "";
+};
+
+const setContentType = (type: string) => {
+  contentType.value = type;
+};
+
 const formatDateDashed = (date: string) => {
   return format(new Date(date), "yyyy-MM-dd"); // Formats as 2024-11-16
 };
@@ -43,6 +66,7 @@ const formatDateDashed = (date: string) => {
 const formatRelativeTime = (date: string) => {
   return formatDistanceToNow(new Date(date), { addSuffix: true }); // Formats relative time (e.g., '3 days ago')
 };
+
 onBeforeMount(async () => {
   await getThread(threadId);
   await getThreadContent(threadId);
@@ -53,9 +77,18 @@ onBeforeMount(async () => {
 <template>
   <div v-if="isLoggedIn && loaded" class="folderBody">
     <div id="trapezoid"><h3 class="threadSideTitle">Threads</h3></div>
+    <div id="addMemorySign">
+      <p id="plus">+</p>
+      <p id="memoryText">Make a memory</p>
+    </div>
     <div class="threadHeader">
       <div class="threadTitleDate">
-        <p class="threadTitle">{{ thread.title }}</p>
+        <div class="titleBackArrow">
+          <RouterLink :to="{ name: 'Threads' }" class="oval" :class="{ clicked: currentRouteName === 'Threads' || currentRouteName === 'Thread Content' }"
+            ><i class="pi pi-chevron-left backArrow" style="font-size: 2rem"></i
+          ></RouterLink>
+          <p class="threadTitle">{{ thread.title }}</p>
+        </div>
         <article class="timestamp">
           <p>by: {{ thread.creator }}</p>
           <p>{{ formatDateDashed(thread.dateCreated) }}</p>
@@ -66,25 +99,25 @@ onBeforeMount(async () => {
       <div class="pinnedPost"></div>
     </div>
     <div class="posts">
-      <div v-if="loaded && posts.length !== 0">
+      <div class="postGrid" v-if="loaded && posts.length !== 0">
         <article v-for="post in posts" :key="post._id">
           <PostComponent :post="post" />
         </article>
       </div>
     </div>
     <div class="postBox">
-      <form class="postForm">
-        <div class="postText">
-          <textarea class="textInput" placeholder="Contribute to thread"></textarea>
+      <form @submit.prevent="makePost(content)" class="postForm">
+        <textarea class="textInput postText" v-model="content" placeholder="Contribute to thread"></textarea>
+        <div class="icons">
+          <button type="submit" aria-label="Enter Text" @click="setContentType('text')"><i class="pi pi-arrow-circle-up" style="font-size: 2rem"></i></button>
+          <button type="submit" aria-label="Record Audio"><i class="pi pi-microphone" style="font-size: 2rem"></i></button>
+          <button type="submit" aria-label="Post Image"><i class="pi pi-image" style="font-size: 2rem"></i></button>
         </div>
-        <button type="submit">Post</button>
       </form>
-      <div class="icons">
-        <i class="pi pi-microphone" style="font-size: 2rem"></i>
-        <i class="pi pi-image" style="font-size: 2rem"></i>
-      </div>
     </div>
   </div>
+  <p v-else-if="loaded" class="threadMainTitle">No threads found</p>
+  <p v-else class="threadMainTitle">Loading...</p>
 </template>
 
 <style scoped>
@@ -92,7 +125,12 @@ onBeforeMount(async () => {
   color: #3f3f44;
   text-align: center;
 }
-
+.threadMainTitle {
+  color: #3f3f44;
+  text-align: center;
+  font-size: 30px;
+  margin-top: 100px;
+}
 .folderBody {
   background-color: white;
   width: 100%;
@@ -107,6 +145,19 @@ onBeforeMount(async () => {
   font-size: 30px;
   font-weight: lighter;
 }
+.titleBackArrow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 10%;
+  gap: 2em;
+  cursor: pointer;
+}
+
+.backArrow {
+  color: black;
+}
 
 /*How to build trapezoid link: https://stackoverflow.com/questions/7920754/how-to-draw-a-trapezium-trapezoid-with-css3*/
 #trapezoid {
@@ -120,6 +171,36 @@ onBeforeMount(async () => {
   height: 0;
   width: 110px;
   z-index: 1;
+}
+#memoryText {
+  font-size: 12px;
+  font-weight: bold;
+  width: 60px;
+  padding: 5px;
+}
+#plus {
+  font-size: 2.5em;
+  color: white;
+  margin: 0;
+  text-align: center;
+}
+
+#addMemorySign {
+  position: absolute;
+  top: 300px;
+  left: -25px;
+  border-radius: 100px;
+  background-color: #3f3f44;
+  height: 50px;
+  width: 50px;
+  z-index: 1;
+  cursor: pointer;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .threadTitleDate {
@@ -173,35 +254,48 @@ onBeforeMount(async () => {
   width: 90%;
   margin-left: 70px;
   margin-top: 20px;
-  border: 2px solid black;
   overflow: scroll;
   z-index: 3;
 }
 
+.postGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-left: 20px;
+}
 .postText {
-  width: 60vw;
-  border: 2px solid blue;
+  width: calc(100% - 40px);
+  height: 3vh;
   margin: 10px;
   border-radius: 60px;
-  flex-grow: 1;
+  padding: 10px;
+  overflow-y: scroll;
+  resize: none;
+  vertical-align: center;
 }
 
 .postBox {
   display: flex;
   align-items: center;
+  justify-content: space-evenly;
   height: 10vh;
   width: 90%;
   margin-left: 70px;
-  border: 2px solid red;
 }
 .icons {
   display: flex;
-  gap: 1em;
+  gap: 0.5em;
+}
+
+.textInput::placeholder {
+  font-size: 1rem; /* Adjust the size as needed */
+  color: #443f43; /* Optional: Change the color for better contrast */
+  padding: 2px;
 }
 
 .postForm {
   display: flex;
   align-items: center;
-  width: 80%; /* Adjust width to control form size */
+  width: 100%;
 }
 </style>

@@ -138,10 +138,10 @@ class Routes {
   }
 
   @Router.post("/posts")
-  async createPost(session: SessionDoc, content: string, id: string, options?: PostOptions) {
+  async createPost(session: SessionDoc, content: string, id: string, contentType: string, options?: PostOptions) {
     const user = Sessioning.getUser(session);
     const threadId = new ObjectId(id);
-    const created = await Posting.create(user, content, threadId, options);
+    const created = await Posting.create(user, content, threadId, contentType, options);
     if (created.post != null) {
       await Threading.addToThread(threadId, created.post._id);
     }

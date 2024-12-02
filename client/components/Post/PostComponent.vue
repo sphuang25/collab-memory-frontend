@@ -1,46 +1,80 @@
 <script setup lang="ts">
-import { useUserStore } from "@/stores/user";
-import { formatDate } from "@/utils/formatDate";
-import { storeToRefs } from "pinia";
-import { fetchy } from "../../utils/fetchy";
-
 const props = defineProps(["post"]);
-const emit = defineEmits(["editPost", "refreshPosts"]);
-const { currentUsername } = storeToRefs(useUserStore());
+import { format } from "date-fns";
+import { ref } from "vue";
+const showMenu = ref(false);
 
-const deletePost = async () => {
-  try {
-    await fetchy(`/api/posts/${props.post._id}`, "DELETE");
-  } catch {
-    return;
-  }
-  emit("refreshPosts");
+const formatDateDashed = (date: string) => {
+  return format(new Date(date), "yyyy-MM-dd"); // Formats as 2024-11-16
+};
+
+const toggleMenu = () => {
+  showMenu.value = !showForm.Menu; // Toggle form visibility
 };
 </script>
 
 <template>
-  <p class="author">{{ props.post.author }}</p>
-  <p>{{ props.post.content }}</p>
-  <div class="base">
-    <menu v-if="props.post.author == currentUsername">
-      <li><button class="btn-small pure-button" @click="emit('editPost', props.post._id)">Edit</button></li>
-      <li><button class="button-error btn-small pure-button" @click="deletePost">Delete</button></li>
-    </menu>
-    <article class="timestamp">
-      <p v-if="props.post.dateCreated !== props.post.dateUpdated">Edited on: {{ formatDate(props.post.dateUpdated) }}</p>
-      <p v-else>Created on: {{ formatDate(props.post.dateCreated) }}</p>
-    </article>
+  <div class="card">
+    <div class="base">
+      <i class="pi pi-ellipsis-h editMenu" style="font-size: 1.5rem" @click="toggleMenu"></i>
+      <div v-if="showMenu" class="popup"></div>
+      <p class="postContent">{{ props.post.content }}</p>
+      <p class="author">by: {{ props.post.author }}</p>
+      <p class="date">{{ formatDateDashed(props.post.dateCreated) }}</p>
+    </div>
   </div>
 </template>
 
 <style scoped>
 p {
   margin: 0em;
+  color: #3f3f44;
+  margin-bottom: 10px;
+}
+.timestamp p {
+  font-size: 1em;
 }
 
-.author {
+.threadTitle {
   font-weight: bold;
-  font-size: 1.2em;
+  font-size: 1.5em;
+  margin-bottom: 15px;
+}
+
+.cardTitle {
+  padding: 10px;
+}
+.author {
+  position: absolute;
+  bottom: 10px;
+  left: 15px;
+}
+
+.editMenu {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  cursor: pointer;
+}
+.card {
+  position: relative;
+  height: 25vh;
+  width: 20vw;
+  margin: 10px;
+  border-radius: 1em;
+  padding: 5px;
+  background-color: #d4cdf8;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.postContent {
+  font-size: 18px;
+  position: absolute;
+  top: 50px;
+}
+.date {
+  position: absolute;
+  bottom: 10px;
+  right: 15px;
 }
 
 menu {
@@ -57,15 +91,15 @@ menu {
   justify-content: flex-end;
   font-size: 0.9em;
   font-style: italic;
+  flex-direction: column;
 }
 
 .base {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  align-items: center;
-}
-
-.base article:only-child {
-  margin-left: auto;
+  gap: 1em;
+  padding: 10px;
+  overflow-y: scroll;
 }
 </style>
