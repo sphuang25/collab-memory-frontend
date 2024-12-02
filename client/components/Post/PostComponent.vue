@@ -9,7 +9,7 @@ const formatDateDashed = (date: string) => {
 };
 
 const toggleMenu = () => {
-  showMenu.value = !showForm.Menu; // Toggle form visibility
+  showMenu.value = !showMenu.value; // Toggle form visibility
 };
 </script>
 

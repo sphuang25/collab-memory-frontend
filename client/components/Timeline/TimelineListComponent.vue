@@ -7,7 +7,7 @@ import { onBeforeMount, ref } from "vue";
 const { isLoggedIn } = storeToRefs(useUserStore());
 
 const loaded = ref(false);
-let threads = ref<Array<ThreadDoc>>([]);
+let threads = ref();
 //let editing = ref("");
 //let searchAuthor = ref("");
 
