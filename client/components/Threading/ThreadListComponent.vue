@@ -31,13 +31,13 @@ onBeforeMount(async () => {
   <div v-if="isLoggedIn" class="folderBody">
     <div id="trapezoid"><h3 class="threadSideTitle">Threads</h3></div>
     <h3 class="threadMainTitle">Active Threads</h3>
-    <section class="threads" v-if="loaded && threads.length !== 0">
+    <section class="threads" v-if="loaded">
       <ThreadCreateForm @refreshThreads="getThreads" />
       <article v-for="thread in threads" :key="thread._id">
         <ThreadCard :thread="thread" />
       </article>
     </section>
-    <p v-else-if="loaded" class="threadMainTitle">No threads found</p>
+    <p v-if="loaded" class="threadMainTitle">No threads found</p>
     <p v-else class="threadMainTitle">Loading...</p>
   </div>
 </template>
