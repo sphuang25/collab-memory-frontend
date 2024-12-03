@@ -6,6 +6,7 @@ import FamilyView from "../views/FamilyView.vue";
 import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
+import ProfileView from "../views/ProfileView.vue";
 import SettingView from "../views/SettingView.vue";
 import ThreadContentView from "../views/ThreadContentView.vue";
 import ThreadHomeView from "../views/ThreadHomeView.vue";
@@ -49,13 +50,12 @@ const router = createRouter({
       component: TimelineView,
       meta: { requiresAuth: true },
     },
-    /*
     {
       path: "/profile",
       name: "Profile",
       component: ProfileView,
       meta: { requiresAuth: true },
-    },*/
+    },
     {
       path: "/login",
       name: "Login",
