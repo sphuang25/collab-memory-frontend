@@ -66,6 +66,7 @@ onBeforeMount(async () => {
     <section v-if="loaded && families.length !== 0">
       <article v-for="family in families" :key="family._id">
         <FamilyPreview :family="family" @refreshFamilies="getFamilies" />
+        <p></p>
       </article>
     </section>
   </main>

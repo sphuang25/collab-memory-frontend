@@ -125,7 +125,12 @@ export default class FamilyingConcept {
     if (family === null) {
       throw new FamilyNotExistError(familyID);
     } else {
-      await this.members.deleteOne({ familyID: familyID, userID: userID });
+      const member = await this.members.readOne({ familyID: familyID, userID: userID });
+      if (member == null) {
+        throw new NotInFamilyError(userID, familyID);
+      } else {
+        await this.members.deleteOne({ familyID: familyID, userID: userID });
+      }
     }
     return { msg: "Removed member from family!" };
   }
@@ -141,11 +146,20 @@ export default class FamilyingConcept {
 
   async assertInFamily(userID: ObjectId, familyID: ObjectId) {
     const family = await this.families.readOne({ _id: familyID });
-    const inFamily = await this.members.readMany({ familyID: familyID, userID: userID });
+    const inFamily = await this.members.readOne({ familyID: familyID, userID: userID });
     if (family === null) {
       throw new FamilyNotExistError(familyID);
     } else if (inFamily === null) {
       throw new NotInFamilyError(userID, familyID);
+    }
+  }
+
+  async getFamilyName(userID: ObjectId, familyID: ObjectId) {
+    const family = await this.families.readOne({ _id: familyID });
+    if (family === null) {
+      throw new FamilyNotExistError(familyID);
+    } else {
+      return family.familyTitle;
     }
   }
 }
