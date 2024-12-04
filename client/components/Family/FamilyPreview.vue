@@ -59,9 +59,6 @@ onBeforeMount(async () => {
       <article class="timestamp">
         <p>Members: {{ members }}</p>
       </article>
-      <menu>
-        <p><button class="btn-small pure-button" @click="leaveFamily">Leave Family</button></p>
-      </menu>
     </div>
   </div>
 </template>

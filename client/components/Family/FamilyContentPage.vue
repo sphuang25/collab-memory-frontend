@@ -5,30 +5,22 @@ import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
+import FamilyMemberList from "./FamilyMemberList.vue";
 const userStore = useUserStore();
 const { isLoggedIn } = storeToRefs(userStore);
 
 const { currentUsername } = storeToRefs(useUserStore());
 const members = ref("");
 const familyTitle = ref("");
+const familyPage = ref(""); // members, threads
 
 const route = useRoute();
-const threadId = String(route.params.id);
-
-const getFamilyMembers = async () => {
-  let membersResult;
-  try {
-    membersResult = await fetchy(`/api/family/member/${threadId}`, "GET");
-  } catch {
-    return;
-  }
-  members.value = membersResult.names[0];
-};
+const familyID = String(route.params.id);
 
 const getFamilyTitle = async () => {
   let familyTitleResult;
   try {
-    familyTitleResult = await fetchy(`/api/family/name/${threadId}`, "GET");
+    familyTitleResult = await fetchy(`/api/family/name/${familyID}`, "GET");
   } catch {
     return;
   }
@@ -37,11 +29,19 @@ const getFamilyTitle = async () => {
 
 const leaveFamily = async () => {
   try {
-    await fetchy(`/api/family/${threadId}/member/${currentUsername.value}`, "DELETE");
+    await fetchy(`/api/family/${familyID}/member/${currentUsername.value}`, "DELETE");
     await router.push(`/family`);
   } catch {
     return;
   }
+};
+
+const membersPage = () => {
+  familyPage.value = "members";
+};
+
+const threadsPage = () => {
+  familyPage.value = "threads";
 };
 
 // const getFriendInterface = async (friendName: string) => {
@@ -49,32 +49,45 @@ const leaveFamily = async () => {
 // };
 
 onBeforeMount(async () => {
-  await getFamilyMembers();
   await getFamilyTitle();
 });
 </script>
 
 <template>
   <div v-if="isLoggedIn" class="folderBody">
-    <div class="card">
-      <div id="trapezoid"><h3 class="familySideTitle">Families</h3></div>
-
-      <p class="familyMainTitle">{{ familyTitle }}</p>
-
-      <p>Members: {{ members }}</p>
-
+    <div id="trapezoid"><h3 class="familySideTitle">Families</h3></div>
+    <h1 class="familyMainTitle">{{ familyTitle }}</h1>
+    <div>
       <menu>
-        <p>
-          <button class="btn-small pure-button" @click="leaveFamily">Leave Family</button>
-        </p>
+        <p class="oval" @click="membersPage">Members</p>
+        <p class="oval" @click="threadsPage">Threads</p>
+        <p class="oval" @click="leaveFamily">Leave Family</p>
       </menu>
+    </div>
+    <div>
+      <p class="familyMainTitle" v-if="familyPage === `members`">
+        <FamilyMemberList :familyID="familyID" />
+      </p>
+      <p class="familyMainTitle" v-else-if="familyPage === `threads`">Threads will be placed here!</p>
     </div>
   </div>
 </template>
 
 <style scoped>
-h1 {
-  text-align: center;
+menu {
+  list-style-type: none;
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+  padding: 1;
+  margin: 0;
+  font-weight: bold;
+  justify-content: space-evenly;
+}
+
+.menu:hover {
+  background: rgb(191, 191, 191);
+  cursor: pointer;
 }
 
 article {
@@ -145,5 +158,22 @@ article {
   text-align: center;
   font-size: 30px;
   font-weight: bold;
+}
+
+.oval {
+  border: 5px solid transparent;
+  display: inline-flex;
+  border-radius: 20px;
+  padding: 5px;
+  text-align: center;
+  width: auto;
+  padding: 5px 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+.oval:hover {
+  background-color: #f8762b;
+  color: white;
 }
 </style>
