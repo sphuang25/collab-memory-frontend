@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import router from "@/router";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
@@ -31,11 +32,12 @@ const getFamilyTitle = async () => {
 };
 
 const leaveFamily = async () => {
-  // try {
-  await fetchy(`/api/family/${props.family.familyID}/member/${currentUsername.value}`, "DELETE");
-  // } catch {
-  //   return;
-  // }
+  try {
+    await fetchy(`/api/family/${props.family.familyID}/member/${currentUsername.value}`, "DELETE");
+    emit("refreshFamilies");
+  } catch {
+    return;
+  }
 };
 
 // const getFriendInterface = async (friendName: string) => {
@@ -49,46 +51,92 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <!-- <p>Members: {{ members }}</p> -->
-  <article>
-    <p class="sender"></p>
+  <div class="card" @click="router.push(`/family/${props.family.familyID}`)">
+    <div class="cardTitle">
+      <p class="threadTitle">{{ familyTitle }}</p>
+    </div>
     <div class="base">
-      <div class="title">{{ familyTitle }}</div>
-
-      <div>Members: {{ members }}</div>
+      <article class="timestamp">
+        <p>Members: {{ members }}</p>
+      </article>
       <menu>
-        <p><button class="btn-small pure-button" @click="leaveFamily">Remove</button></p>
+        <p><button class="btn-small pure-button" @click="leaveFamily">Leave Family</button></p>
       </menu>
     </div>
-  </article>
+  </div>
 </template>
 
 <style scoped>
 p {
   margin: 0em;
+  color: #3f3f44;
+  margin-bottom: 10px;
 }
 
-.title {
+menu {
+  list-style-type: none;
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+  padding: 1;
+  margin: 0;
+}
+
+.timestamp p {
+  font-size: 1em;
+}
+
+.threadTitle {
   font-weight: bold;
-  font-size: 2em;
+  font-size: 1.5em;
+  margin-bottom: 15px;
+}
+
+.cardTitle {
+  padding: 10px;
+}
+
+.card {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  border-radius: 1em;
+  padding: 5px;
+}
+
+.card:hover {
+  filter: brightness(90%);
+  cursor: pointer;
+}
+
+.author {
+  position: absolute;
+  bottom: 10px;
+  right: 15px;
+}
+
+menu {
+  list-style-type: none;
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+  padding: 0;
+  margin: 0;
+}
+
+.timestamp {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.9em;
+  font-style: italic;
+  flex-direction: column;
 }
 
 .base {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.base article:only-child {
-  margin-left: auto;
-}
-
-article {
-  background-color: var(--base-bg);
-  border-radius: 1em;
   flex-direction: column;
-  align-items: left;
-  gap: 0.5em;
-  padding: 1em;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 10px;
 }
 </style>

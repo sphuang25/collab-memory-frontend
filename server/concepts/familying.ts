@@ -108,6 +108,9 @@ export default class FamilyingConcept {
   }
 
   async createFamily(userID: ObjectId, familyTitle: string) {
+    if (familyTitle == "") {
+      throw new FamilyTitleInvalidError("Family name cannot be empty!");
+    }
     const family = await this.families.createOne({ familyTitle: familyTitle });
     await this.addToFamily(userID, family);
     return { msg: `Family ${familyTitle} is created!` };
@@ -167,6 +170,12 @@ export default class FamilyingConcept {
 export class FamilyNotExistError extends NotFoundError {
   constructor(public familyID: ObjectId) {
     super(`Family ${familyID} does not exists.`);
+  }
+}
+
+export class FamilyTitleInvalidError extends NotAllowedError {
+  constructor(public readonly message: string) {
+    super("{0}!", message);
   }
 }
 
