@@ -8,26 +8,26 @@ const props = defineProps(["family"]);
 const emit = defineEmits(["refreshFamilies"]);
 const { currentUsername } = storeToRefs(useUserStore());
 
-const members = ref("");
+const members = ref<Array<Record<string, string>>>([]);
 const familyTitle = ref("");
+const memberUsernames = ref("");
 
 const getFamilyMembers = async () => {
-  let membersResult;
   try {
-    membersResult = await fetchy(`/api/family/member/${props.family.familyID}`, "GET");
+    members.value = await fetchy(`/api/family/member/${props.family.familyID}`, "GET");
+    memberUsernames.value = (await fetchy(`/api/family/member/name/${props.family.familyID}`, "GET")).join(",");
   } catch {
     return;
   }
-  members.value = membersResult.names[0];
 };
 
 const getFamilyTitle = async () => {
   let familyTitleResult;
-  try {
-    familyTitleResult = await fetchy(`/api/family/name/${props.family.familyID}`, "GET");
-  } catch {
-    return;
-  }
+  // try {
+  familyTitleResult = await fetchy(`/api/family/name/${props.family.familyID}`, "GET");
+  // } catch {
+  //   return;
+  // }
   familyTitle.value = familyTitleResult;
 };
 
@@ -57,7 +57,7 @@ onBeforeMount(async () => {
     </div>
     <div class="base">
       <article class="timestamp">
-        <p>Members: {{ members }}</p>
+        <p>Members: {{ memberUsernames }}</p>
       </article>
     </div>
   </div>

@@ -37,7 +37,6 @@ async function getRequests() {
 onBeforeMount(async () => {
   await getFamilies();
   await getRequests();
-  loaded.value = true;
 });
 </script>
 
@@ -45,7 +44,7 @@ onBeforeMount(async () => {
   <div v-if="isLoggedIn" class="folderBody">
     <div id="trapezoid"><h3 class="familySideTitle">Home</h3></div>
     <h3 class="familyMainTitle">Families List</h3>
-    <section class="threads" v-if="loaded">
+    <section class="threads">
       <article v-for="family in families" :key="family._id">
         <div id="trapezoid"><h3 class="familySideTitle">Family</h3></div>
         <FamilyPreview :family="family" @refreshFamilies="getFamilies" />

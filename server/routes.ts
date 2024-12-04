@@ -362,6 +362,17 @@ class Routes {
     const familyMember = await Familying.getFamilyMember(familyID);
     return familyMember;
   }
+
+  @Router.get("/family/member/name/:familyID")
+  async getFamilyMemberUsername(session: SessionDoc, familyID: ObjectId) {
+    const user = Sessioning.getUser(session);
+    familyID = new ObjectId(familyID);
+    await Familying.assertInFamily(user, familyID);
+    const familyMember = await Familying.getFamilyMember(familyID);
+    const familyMemberIDs = familyMember.map((x) => x.userID);
+    const familyMemberUsernames = await Authing.idsToUsernames(familyMemberIDs);
+    return familyMemberUsernames;
+  }
 }
 
 /** The web app. */
