@@ -43,7 +43,7 @@ onBeforeMount(async () => {
 
 <template>
   <div v-if="isLoggedIn" class="folderBody">
-    <div id="trapezoid"><h3 class="familySideTitle">Families</h3></div>
+    <div id="trapezoid"><h3 class="familySideTitle">Home</h3></div>
     <h3 class="familyMainTitle">Families List</h3>
     <section class="threads" v-if="loaded">
       <article v-for="family in families" :key="family._id">
