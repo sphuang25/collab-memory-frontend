@@ -2,6 +2,7 @@ import { storeToRefs } from "pinia";
 import { createRouter, createWebHistory } from "vue-router";
 
 import { useUserStore } from "@/stores/user";
+import FamilyContentView from "../views/FamilyContentView.vue";
 import FamilyView from "../views/FamilyView.vue";
 import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
@@ -30,6 +31,12 @@ const router = createRouter({
       path: "/family",
       name: "Families",
       component: FamilyView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/family/:id",
+      name: "Family Content",
+      component: FamilyContentView,
       meta: { requiresAuth: true },
     },
     {

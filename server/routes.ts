@@ -24,6 +24,19 @@ class Routes {
     return await Authing.getUserById(user);
   }
 
+  @Router.get("/users/user/:userID")
+  async getUserByUserID(userID: ObjectId) {
+    const userIDObject = new ObjectId(userID);
+    const user = await Authing.getUserById(userIDObject);
+    return user;
+  }
+
+  @Router.get("/users/id/:username")
+  async getUserIDByUsername(username: string) {
+    const user = await Authing.getUserByUsername(username);
+    return user._id;
+  }
+
   @Router.get("/users")
   async getUsers() {
     return await Authing.getUsers();
@@ -263,6 +276,7 @@ class Routes {
   @Router.get("/family/request/:id")
   async getFamilyRequest(session: SessionDoc, familyID: ObjectId) {
     const user = Sessioning.getUser(session);
+    familyID = new ObjectId(familyID);
     await Familying.assertInFamily(user, familyID);
     const requests = await Familying.getFamilyRequests(familyID);
     return requests;
@@ -271,6 +285,7 @@ class Routes {
   @Router.post("/family/request")
   async sendJoinFamilyRequest(session: SessionDoc, familyID: ObjectId) {
     const user = Sessioning.getUser(session);
+    familyID = new ObjectId(familyID);
     const request = await Familying.sendRequest(user, familyID);
     return { msg: request.msg };
   }
@@ -278,6 +293,7 @@ class Routes {
   @Router.patch("/family/request/accept")
   async acceptJoinFamilyRequest(session: SessionDoc, familyID: ObjectId) {
     const user = Sessioning.getUser(session);
+    familyID = new ObjectId(familyID);
     const request = await Familying.acceptRequest(user, familyID);
     return { msg: request.msg };
   }
@@ -285,6 +301,7 @@ class Routes {
   @Router.patch("/family/request/reject")
   async rejectJoinFamilyRequest(session: SessionDoc, familyID: ObjectId) {
     const user = Sessioning.getUser(session);
+    familyID = new ObjectId(familyID);
     const request = await Familying.rejectRequest(user, familyID);
     return { msg: request.msg };
   }
@@ -303,6 +320,14 @@ class Routes {
     return family;
   }
 
+  @Router.get("/family/name/:familyID")
+  async getFamilyName(session: SessionDoc, familyID: ObjectId) {
+    const user = Sessioning.getUser(session);
+    familyID = new ObjectId(familyID);
+    const familyName = await Familying.getFamilyName(user, familyID);
+    return familyName;
+  }
+
   @Router.post("/family")
   async createFamily(session: SessionDoc, familyTitle: string) {
     const user = Sessioning.getUser(session);
@@ -313,29 +338,29 @@ class Routes {
   @Router.delete("/family")
   async deleteFamily(session: SessionDoc, familyID: ObjectId) {
     const user = Sessioning.getUser(session);
+    familyID = new ObjectId(familyID);
     const familyDelete = await Familying.deleteFamily(user, familyID);
     return { msg: familyDelete.msg };
   }
 
-  @Router.delete("/family/member")
-  async deleteFamilyMember(session: SessionDoc, familyID: ObjectId, toDelete: ObjectId) {
+  @Router.delete("/family/:familyID/member/:username")
+  async deleteFamilyMember(session: SessionDoc, familyID: ObjectId, username: string) {
     const user = Sessioning.getUser(session);
+    const toDelete = await Authing.getUserByUsername(username);
+    familyID = new ObjectId(familyID);
+    const toDeleteID = new ObjectId(toDelete._id);
     await Familying.assertInFamily(user, familyID);
-    const familyMemberDelete = await Familying.removeFamilyMember(toDelete, familyID);
+    const familyMemberDelete = await Familying.removeFamilyMember(toDeleteID, familyID);
     return { msg: familyMemberDelete.msg };
   }
 
-  @Router.get("/family/member")
+  @Router.get("/family/member/:familyID")
   async getFamilyMember(session: SessionDoc, familyID: ObjectId) {
     const user = Sessioning.getUser(session);
+    familyID = new ObjectId(familyID);
     await Familying.assertInFamily(user, familyID);
     const familyMember = await Familying.getFamilyMember(familyID);
-    const familyMemberUsername = await Authing.idsToUsernames(
-      familyMember.map((x) => {
-        return x.userID;
-      }),
-    );
-    return { msg: "Get family member success!", names: familyMemberUsername };
+    return familyMember;
   }
 }
 
