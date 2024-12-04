@@ -17,7 +17,7 @@ const toggleMenu = () => {
   <div class="card">
     <div class="base">
       <i class="pi pi-ellipsis-h editMenu" style="font-size: 1.5rem" @click="toggleMenu"></i>
-      <div v-if="showMenu" class="popup"></div>
+      <div v-if="showMenu" class="menuBox"></div>
       <p class="postContent">{{ props.post.content }}</p>
       <p class="author">by: {{ props.post.author }}</p>
       <p class="date">{{ formatDateDashed(props.post.dateCreated) }}</p>

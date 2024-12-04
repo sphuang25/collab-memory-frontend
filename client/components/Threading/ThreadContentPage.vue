@@ -150,7 +150,7 @@ onBeforeMount(async () => {
   flex-direction: row;
   justify-content: space-evenly;
   align-items: center;
-  width: 10%;
+  width: auto;
   gap: 2em;
   cursor: pointer;
 }
