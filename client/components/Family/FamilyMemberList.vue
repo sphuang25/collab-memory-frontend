@@ -50,7 +50,6 @@ onBeforeMount(async () => {
   </section> -->
 
   <h2>Members</h2>
-  <p style="font-weight: bold; text-align: center">{{ members.length }}</p>
   <section class="friends" v-if="members.length !== 0">
     <article v-for="member in members" :key="member._id">
       <MemberComponent :member="member" @refreshMembers="getFamilyMembers" />
@@ -78,6 +77,7 @@ section {
   display: flex;
   flex-direction: column;
   gap: 1em;
+  width: 70%;
 }
 
 section,

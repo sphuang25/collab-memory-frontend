@@ -24,6 +24,13 @@ class Routes {
     return await Authing.getUserById(user);
   }
 
+  @Router.get("/users/user/:userID")
+  async getUserByUserID(userID: ObjectId) {
+    const userIDObject = new ObjectId(userID);
+    const user = await Authing.getUserById(userIDObject);
+    return user;
+  }
+
   @Router.get("/users/id/:username")
   async getUserIDByUsername(username: string) {
     const user = await Authing.getUserByUsername(username);
@@ -353,12 +360,7 @@ class Routes {
     familyID = new ObjectId(familyID);
     await Familying.assertInFamily(user, familyID);
     const familyMember = await Familying.getFamilyMember(familyID);
-    const familyMemberUsername = await Authing.idsToUsernames(
-      familyMember.map((x) => {
-        return x.userID;
-      }),
-    );
-    return { msg: "Get family member success!", names: familyMemberUsername };
+    return familyMember;
   }
 }
 

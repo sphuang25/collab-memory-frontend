@@ -1,13 +1,22 @@
 <script setup lang="ts">
 import { useUserStore } from "@/stores/user";
+import { formatDate } from "@/utils/formatDate";
 import { storeToRefs } from "pinia";
-import { onMounted, ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { fetchy } from "../../utils/fetchy";
 const props = defineProps(["member"]);
 const emit = defineEmits(["refreshMembers"]);
 const { currentUsername } = storeToRefs(useUserStore());
 
-const friendInterface = ref("");
+const username = ref("");
+
+const getUser = async () => {
+  try {
+    username.value = (await fetchy(`/api/users/user/${props.member.userID}`, "GET")).username;
+  } catch {
+    return;
+  }
+};
 
 const removeMember = async () => {
   try {
@@ -18,26 +27,33 @@ const removeMember = async () => {
   emit("refreshMembers");
 };
 
-onMounted(async () => {});
+onBeforeMount(async () => {
+  await getUser();
+});
 </script>
 
 <template>
-  <p class="sender">{{ props.member.userID }}</p>
-  <p>h</p>
-  <!-- <p>Interface: {{ friendInterface }}</p>
+  <p class="sender">{{ username }}</p>
+  <p class="timestamp">Join since: {{ formatDate(props.member.dateCreated) }}</p>
   <div class="base">
-    <article class="timestamp">
-      <p>Friends since: {{ formatDate(props.friend.dateCreated) }}</p>
-    </article>
+    <article class="timestamp"></article>
     <menu>
       <p><button class="btn-small pure-button" @click="removeMember">Remove</button></p>
     </menu>
-  </div> -->
+  </div>
 </template>
 
 <style scoped>
 p {
   margin: 0em;
+}
+
+.timestamp {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.5em;
+  font-style: italic;
+  font-weight: lighter;
 }
 
 .sender {
