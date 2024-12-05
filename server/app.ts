@@ -1,3 +1,4 @@
+import ArchivingConcept from "./concepts/archiving";
 import AuthenticatingConcept from "./concepts/authenticating";
 import FamilyingConcept from "./concepts/familying";
 import FriendingConcept from "./concepts/friending";
@@ -15,3 +16,4 @@ export const Friending = new FriendingConcept("friends");
 export const Profiling = new ProfilingConcept("profiles");
 export const Threading = new ThreadingConcept("threads");
 export const Familying = new FamilyingConcept("families");
+export const Archiving = new ArchivingConcept("archives");

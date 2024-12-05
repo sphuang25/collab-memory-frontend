@@ -37,8 +37,8 @@ onBeforeMount(async () => {
         <ThreadCard :thread="thread" />
       </article>
     </section>
-    <p v-if="loaded" class="threadMainTitle">No threads found</p>
-    <p v-else class="threadMainTitle">Loading...</p>
+    <p v-if="loaded && threads.length == 0" class="threadMainTitle">No threads found</p>
+    <p v-else-if="!loaded" class="threadMainTitle">Loading...</p>
   </div>
 </template>
 

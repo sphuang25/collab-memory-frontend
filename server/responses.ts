@@ -1,4 +1,5 @@
 import { Authing } from "./app";
+import { ArchiveDoc } from "./concepts/archiving";
 import { AlreadyFriendsError, FriendNotFoundError, FriendRequestAlreadyExistsError, FriendRequestDoc, FriendRequestNotFoundError } from "./concepts/friending";
 import { PostAuthorNotMatchError, PostDoc } from "./concepts/posting";
 import { ThreadDoc } from "./concepts/threading";
@@ -63,6 +64,22 @@ export default class Responses {
     const creators = await Authing.idsToUsernames(threads.map((thread) => thread.creator));
     const members = await Promise.all(threads.map((thread) => Authing.idsToUsernames(thread.members)));
     return threads.map((thread, i) => ({ ...thread, creator: creators[i], members: members[i] }));
+  }
+
+  static async archive(archive: ArchiveDoc | null) {
+    if (!archive) {
+      return archive;
+    }
+    const creator = await Authing.getUserById(archive.creator);
+    return { ...archive, creator: creator.username };
+  }
+
+  /**
+   * Same as {@link archive} but for an array of ArchiveDoc for improved performance.
+   */
+  static async archives(archives: ArchiveDoc[]) {
+    const creators = await Authing.idsToUsernames(archives.map((a) => a.creator));
+    return archives.map((archive, i) => ({ ...archive, creator: creators[i] }));
   }
 }
 

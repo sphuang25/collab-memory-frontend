@@ -33,7 +33,7 @@ onBeforeMount(async () => {
 
 <template>
   <div v-if="isLoggedIn" class="folderBody">
-    <div id="trapezoid"><h3 class="threadSideTitle">Threads</h3></div>
+    <div id="trapezoid"><h3 class="threadSideTitle">Timeline</h3></div>
   </div>
 </template>
 

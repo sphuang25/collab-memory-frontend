@@ -20,19 +20,19 @@ export default class UserProfilingConcept {
   }
 
   async createArchive(creator: ObjectId, posts: ObjectId[], timePeriod: Date, caption: string) {
-    const archive = await this.archives.createOne({ creator: creator, content: posts, timePeriod: timePeriod, caption: caption });
-    return archive;
+    const _id = await this.archives.createOne({ creator: creator, content: posts, timePeriod: timePeriod, caption: caption });
+    return { msg: "Archive successfully created!", archive: await this.archives.readOne({ _id }) };
   }
 
   async updateCaption(editor: ObjectId, archiveItem: ObjectId, newCaption: string) {
     const archive = await this.archives.readOne({ _id: archiveItem });
-    if (archive === undefined) {
+    if (archive == null) {
       throw new ArchiveNotExistError(archiveItem);
     } else if (archive?.creator.toString() !== editor.toString()) {
       throw new NotCreatorOfArchiveError(editor, archiveItem);
     } else {
       const archive = await this.archives.partialUpdateOne({ _id: archiveItem }, { caption: newCaption });
-      return archive;
+      return { msg: "Archive caption successfully updated!", archive: await this.archives.readOne({ archive }) };
     }
   }
 

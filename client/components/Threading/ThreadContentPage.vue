@@ -5,6 +5,7 @@ import { computed, onBeforeMount, ref } from "vue";
 import { fetchy } from "@/utils/fetchy";
 import { format, formatDistanceToNow } from "date-fns";
 import PostComponent from "@/components/Post/PostComponent.vue";
+import CreateArchiveForm from "@/components/Archiving/CreateArchiveForm.vue";
 const { isLoggedIn } = storeToRefs(useUserStore());
 import { useRoute } from "vue-router";
 import "primeicons/primeicons.css";
@@ -18,6 +19,8 @@ const posts = ref();
 const loaded = ref(false);
 const content = ref("");
 const contentType = ref("");
+const memoryToggle = ref(false);
+const selectedPosts = ref<string[]>([]);
 async function getThread(id: string) {
   let threadResult;
   try {
@@ -55,6 +58,26 @@ const emptyForm = () => {
   content.value = "";
 };
 
+const clearSelectedPosts = () => {
+  selectedPosts.value = [];
+  toggleMemory();
+};
+
+const toggleMemory = () => {
+  memoryToggle.value = !memoryToggle.value;
+};
+
+const togglePostSelection = (postId: string) => {
+  console.log(selectedPosts.value, "id", postId);
+  if (selectedPosts.value.includes(postId)) {
+    console.log("remove");
+    selectedPosts.value = selectedPosts.value.filter((id) => id !== postId);
+  } else {
+    console.log("add");
+    selectedPosts.value.push(postId);
+  }
+};
+
 const setContentType = (type: string) => {
   contentType.value = type;
 };
@@ -76,10 +99,10 @@ onBeforeMount(async () => {
 
 <template>
   <div v-if="isLoggedIn && loaded" class="folderBody">
-    <div id="trapezoid"><h3 class="threadSideTitle">Threads</h3></div>
-    <div id="addMemorySign">
+    <div id="trapezoid"><h3 class="threadSideTitle" v-if="!memoryToggle">Threads</h3></div>
+    <div id="addMemorySign" :class="{ active: memoryToggle }" @click="toggleMemory()">
       <p id="plus">+</p>
-      <p id="memoryText">Make a memory</p>
+      <p id="memoryText" v-if="!memoryToggle">Make a memory</p>
     </div>
     <div class="threadHeader">
       <div class="threadTitleDate">
@@ -88,6 +111,7 @@ onBeforeMount(async () => {
             ><i class="pi pi-chevron-left backArrow" style="font-size: 2rem"></i
           ></RouterLink>
           <p class="threadTitle">{{ thread.title }}</p>
+          <CreateArchiveForm v-if="memoryToggle" :selectedPosts="selectedPosts" @cancelArchive="toggleMemory" @submitted="clearSelectedPosts"></CreateArchiveForm>
         </div>
         <article class="timestamp">
           <p>by: {{ thread.creator }}</p>
@@ -101,7 +125,8 @@ onBeforeMount(async () => {
     <div class="posts">
       <div class="postGrid" v-if="loaded && posts.length !== 0">
         <article v-for="post in posts" :key="post._id">
-          <PostComponent :post="post" @refreshPosts="getThreadContent" />
+          <PostComponent :post="post" @refreshPosts="getThreadContent" v-if="!memoryToggle" />
+          <PostComponent class="addMode" :post="post" @refreshPosts="getThreadContent" @click="togglePostSelection(post._id)" v-else :class="{ 'selected-post': selectedPosts.includes(post._id) }" />
         </article>
       </div>
     </div>
@@ -121,10 +146,20 @@ onBeforeMount(async () => {
 </template>
 
 <style scoped>
+.selected-post {
+  box-shadow: 0 0 8px 4px #f9dd81;
+  border-radius: 10px;
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.addMode:hover {
+  transform: scale(1.1);
+}
 .threadSideTitle {
   color: #3f3f44;
   text-align: center;
 }
+
 .threadMainTitle {
   color: #3f3f44;
   text-align: center;
@@ -195,6 +230,15 @@ onBeforeMount(async () => {
   width: 50px;
   z-index: 1;
   cursor: pointer;
+  transition:
+    transform 0.5s,
+    top 0.5s;
+}
+
+#addMemorySign.active {
+  top: 110px; /* Move 110px upwards */
+  transform: rotate(360deg); /* Full spin */
+  background-color: #c39d1f;
 }
 
 button {

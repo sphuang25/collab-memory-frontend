@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Authing, Familying, Posting, Profiling, Sessioning, Threading } from "./app";
+import { Archiving, Authing, Familying, Posting, Profiling, Sessioning, Threading } from "./app";
 import { PostDoc, PostOptions } from "./concepts/posting";
 import { SessionDoc } from "./concepts/sessioning";
 import { ThreadDoc } from "./concepts/threading";
@@ -372,6 +372,49 @@ class Routes {
     const familyMemberIDs = familyMember.map((x) => x.userID);
     const familyMemberUsernames = await Authing.idsToUsernames(familyMemberIDs);
     return familyMemberUsernames;
+  }
+
+  @Router.post("/archives")
+  async createArchive(session: SessionDoc, posts: Array<string>, timePeriod: string, caption: string) {
+    const user = Sessioning.getUser(session);
+    const period = new Date(timePeriod);
+    const postIds: Array<ObjectId> = [];
+    for (const p of posts) {
+      const pid = new ObjectId(p);
+      postIds.push(pid);
+    }
+    const created = await Archiving.createArchive(user, postIds, period, caption);
+    return { msg: created.msg, post: await Responses.archive(created.archive) };
+  }
+
+  @Router.patch("/archives")
+  async updateArchiveCaption(session: SessionDoc, archiveItem: string, newCaption: string) {
+    const user = Sessioning.getUser(session);
+    const item = new ObjectId(archiveItem);
+    return await Archiving.updateCaption(user, item, newCaption);
+  }
+
+  @Router.delete("/archives")
+  async deleteArchive(session: SessionDoc, archiveItem: string) {
+    const user = Sessioning.getUser(session);
+    const item = new ObjectId(archiveItem);
+    return await Archiving.deleteArchive(user, item);
+  }
+
+  @Router.patch("/archives/:id")
+  async addToArchive(session: SessionDoc, archive: string, post: string) {
+    const user = Sessioning.getUser(session);
+    const archiveId = new ObjectId(archive);
+    const postId = new ObjectId(post);
+    return await Archiving.addToArchive(user, archiveId, postId);
+  }
+
+  @Router.patch("/delarchives/:id")
+  async deleteFromArchive(session: SessionDoc, archive: string, post: string) {
+    const user = Sessioning.getUser(session);
+    const archiveId = new ObjectId(archive);
+    const postId = new ObjectId(post);
+    return await Archiving.deleteFromArchive(user, archiveId, postId);
   }
 }
 
