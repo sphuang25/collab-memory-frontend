@@ -32,9 +32,9 @@ const choicesSelected = async () => {
 };
 
 // Fetch profile data on component mount if logged in and profile is complete
-onMounted(() => {
+onMounted(async () => {
   if (isLoggedIn.value && selectedGoals.value !== 0) {
-    void fetchProfile();
+    await fetchProfile();
   }
   await choicesSelected();
 });
