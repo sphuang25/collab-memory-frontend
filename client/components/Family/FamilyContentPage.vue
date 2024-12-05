@@ -5,12 +5,12 @@ import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
+import FamilyInvitesList from "./FamilyInvitesList.vue";
 import FamilyMemberList from "./FamilyMemberList.vue";
 const userStore = useUserStore();
 const { isLoggedIn } = storeToRefs(userStore);
 
 const { currentUsername } = storeToRefs(useUserStore());
-const members = ref("");
 const familyTitle = ref("");
 const familyPage = ref(""); // members, threads
 
@@ -30,7 +30,7 @@ const getFamilyTitle = async () => {
 const leaveFamily = async () => {
   try {
     await fetchy(`/api/family/${familyID}/member/${currentUsername.value}`, "DELETE");
-    await router.push(`/family`);
+    await router.push(`/`);
   } catch {
     return;
   }
@@ -44,6 +44,10 @@ const threadsPage = () => {
   familyPage.value = "threads";
 };
 
+const requestsPage = () => {
+  familyPage.value = "requests";
+};
+
 // const getFriendInterface = async (friendName: string) => {
 //   friendInterface.value = await fetchy(`/api/interface/check/${friendName}`, "GET");
 // };
@@ -55,19 +59,26 @@ onBeforeMount(async () => {
 
 <template>
   <div v-if="isLoggedIn" class="folderBody">
-    <div id="trapezoid"><h3 class="familySideTitle">Families</h3></div>
+    <div id="trapezoid"><h3 class="familySideTitle">Family</h3></div>
     <h1 class="familyMainTitle">{{ familyTitle }}</h1>
     <div>
       <menu>
-        <p class="oval" @click="membersPage">Members</p>
-        <p class="oval" @click="threadsPage">Threads</p>
+        <p v-if="familyPage === `members`" class="oval selected" @click="membersPage">Members</p>
+        <p v-else class="oval" @click="membersPage">Members</p>
+        <p v-if="familyPage === `requests`" class="oval selected" @click="requestsPage">Invites</p>
+        <p v-else class="oval" @click="requestsPage">Invites</p>
+        <p v-if="familyPage === `threads`" class="oval selected" @click="threadsPage">Threads</p>
+        <p v-else class="oval" @click="threadsPage">Threads</p>
         <p class="oval" @click="leaveFamily">Leave Family</p>
       </menu>
     </div>
     <div>
-      <p class="familyMainTitle" v-if="familyPage === `members`">
+      <section v-if="familyPage === `requests`">
+        <FamilyInvitesList :familyID="familyID" />
+      </section>
+      <section v-if="familyPage === `members`">
         <FamilyMemberList :familyID="familyID" />
-      </p>
+      </section>
       <p class="familyMainTitle" v-else-if="familyPage === `threads`">Threads will be placed here!</p>
     </div>
   </div>
@@ -85,6 +96,10 @@ menu {
   justify-content: space-evenly;
 }
 
+section {
+  align-items: center;
+}
+
 .menu:hover {
   background: rgb(191, 191, 191);
   cursor: pointer;
@@ -98,7 +113,7 @@ article {
   gap: 0.5em;
   width: calc(50% - 1em);
   box-sizing: border-box;
-  max-width: 40%;
+  max-width: 60%;
   min-height: 250px;
   max-height: 250px;
 }
@@ -158,6 +173,7 @@ article {
   text-align: center;
   font-size: 30px;
   font-weight: bold;
+  padding: 0.5em;
 }
 
 .oval {
@@ -170,10 +186,17 @@ article {
   padding: 5px 10px;
   justify-content: center;
   align-items: center;
+  font-size: 1.5em;
 }
 
 .oval:hover {
   background-color: #f8762b;
   color: white;
+  cursor: pointer;
+}
+
+.oval.selected {
+  border: 1px solid black;
+  outline-style: outset;
 }
 </style>

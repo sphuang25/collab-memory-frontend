@@ -6,13 +6,22 @@ import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
 import FamilyCreateForm from "./FamilyCreateForm.vue";
 import FamilyPreview from "./FamilyPreview.vue";
+import FamilyReceivedInviteCard from "./FamilyReceivedInviteCard.vue";
 
 const userStore = useUserStore();
 const { isLoggedIn } = storeToRefs(userStore);
 
 const loaded = ref(false);
 let families = ref<Array<Record<string, string>>>([]);
-let requests = ref<Array<Record<string, string>>>([]);
+let invites = ref<Array<Record<string, string>>>([]);
+
+async function getInvites() {
+  try {
+    invites.value = await fetchy("/api/family/invite", "GET");
+  } catch (_) {
+    return;
+  }
+}
 
 async function getFamilies() {
   let familyResults;
@@ -24,32 +33,29 @@ async function getFamilies() {
   families.value = familyResults;
 }
 
-async function getRequests() {
-  let requestResults;
-  try {
-    requestResults = await fetchy("/api/family/request", "GET");
-  } catch (_) {
-    return;
-  }
-  requests.value = requestResults;
-}
-
 onBeforeMount(async () => {
   await getFamilies();
-  await getRequests();
+  await getInvites();
 });
 </script>
 
 <template>
   <div v-if="isLoggedIn" class="folderBody">
     <div id="trapezoid"><h3 class="familySideTitle">Home</h3></div>
-    <h3 class="familyMainTitle">Families List</h3>
-    <section class="threads">
+
+    <section>
+      <h3 class="familyMainTitle">Families List</h3>
       <article v-for="family in families" :key="family._id">
-        <div id="trapezoid"><h3 class="familySideTitle">Family</h3></div>
         <FamilyPreview :family="family" @refreshFamilies="getFamilies" />
       </article>
       <FamilyCreateForm class="familyPreview" @refreshFamilies="getFamilies" />
+      <h3 class="familyMainTitle">Invitations</h3>
+      <div v-if="invites.length !== 0">
+        <article v-for="invite in invites" :key="invite._id">
+          <FamilyReceivedInviteCard :invite="invite" @refreshInvites="getInvites" />
+        </article>
+      </div>
+      <p v-else>Cleared! There is no invitation.</p>
     </section>
   </div>
 </template>
@@ -86,6 +92,17 @@ article {
   max-height: 250px;
 }
 
+.articleForInvite {
+  background-color: var(--base-bg);
+  border-radius: 1em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  padding: 2em;
+  border: 1px solid black;
+  outline-style: outset;
+}
+
 .familyPreview {
   border-radius: 1em;
   display: flex;
@@ -120,6 +137,10 @@ article {
   width: 110px;
 }
 
+div {
+  width: 70%;
+}
+
 .threads {
   padding: 1em;
 }
@@ -140,5 +161,7 @@ article {
   color: #3f3f44;
   text-align: center;
   font-size: 30px;
+  padding: 1em;
+  width: 100%;
 }
 </style>

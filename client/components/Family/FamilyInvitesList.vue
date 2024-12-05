@@ -1,46 +1,47 @@
 <script setup lang="ts">
-// import CreateFriendRequestForm from "@/components/Friend/CreateFriendRequestForm.vue";
-// import ReceivedRequestComponent from "@/components/Friend/ReceivedRequestComponent.vue";
-// import SentRequestComponent from "@/components/Friend/SentRequestComponent.vue";
-import MemberComponent from "./MemberComponent.vue";
-
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
+import FamilyInviteForm from "./FamilyInviteForm.vue";
+import FamilySentInviteCard from "./FamilySentInviteCard.vue";
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
 const props = defineProps(["familyID"]);
 const loaded = ref(false);
-let members = ref<Array<Record<string, string>>>([]);
+let invites = ref<Array<Record<string, string>>>([]);
 
-const getFamilyMembers = async () => {
+const getInvites = async () => {
   try {
-    members.value = await fetchy(`/api/family/member/${props.familyID}`, "GET");
+    invites.value = await fetchy(`/api/family/invite/${props.familyID}`, "GET");
   } catch {
     return;
   }
 };
 
 onBeforeMount(async () => {
-  await getFamilyMembers();
+  await getInvites();
   loaded.value = true;
 });
 </script>
 
 <template>
-  <section v-if="members.length !== 0">
-    <article v-for="member in members" :key="member._id">
-      <MemberComponent :member="member" @refreshMembers="getFamilyMembers" />
+  <section>
+    <FamilyInviteForm :familyID="familyID" @refreshInvites="getInvites" />
+  </section>
+
+  <section v-if="invites.length !== 0">
+    <article v-for="invite in invites" :key="invite._id">
+      <FamilySentInviteCard :invite="invite" @refreshInvites="getInvites" />
     </article>
   </section>
 </template>
 
 <style scoped>
 section {
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-  width: 70%;
+  align-items: center;
+  align-content: center;
+  padding: 1em;
+  row-gap: 1em;
 }
 
 section,
@@ -56,9 +57,9 @@ article {
   display: flex;
   flex-direction: column;
   gap: 0.5em;
-  max-width: 70%;
-  min-width: 50%;
-  padding: 1em;
+  padding: 2em;
+  border: 1px solid black;
+  outline-style: outset;
 }
 
 .posts {

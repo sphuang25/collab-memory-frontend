@@ -6,7 +6,18 @@ import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
 const props = defineProps(["family"]);
 const emit = defineEmits(["refreshFamilies"]);
+
 const { currentUsername } = storeToRefs(useUserStore());
+
+import { format, formatDistanceToNow } from "date-fns";
+
+const formatDateDashed = (date: string) => {
+  return format(new Date(date), "yyyy-MM-dd"); // Formats as 2024-11-16
+};
+
+const formatRelativeTime = (date: string) => {
+  return formatDistanceToNow(new Date(date), { addSuffix: true }); // Formats relative time (e.g., '3 days ago')
+};
 
 const members = ref<Array<Record<string, string>>>([]);
 const familyTitle = ref("");
@@ -23,26 +34,13 @@ const getFamilyMembers = async () => {
 
 const getFamilyTitle = async () => {
   let familyTitleResult;
-  // try {
-  familyTitleResult = await fetchy(`/api/family/name/${props.family.familyID}`, "GET");
-  // } catch {
-  //   return;
-  // }
-  familyTitle.value = familyTitleResult;
-};
-
-const leaveFamily = async () => {
   try {
-    await fetchy(`/api/family/${props.family.familyID}/member/${currentUsername.value}`, "DELETE");
-    emit("refreshFamilies");
+    familyTitleResult = await fetchy(`/api/family/name/${props.family.familyID}`, "GET");
   } catch {
     return;
   }
+  familyTitle.value = familyTitleResult;
 };
-
-// const getFriendInterface = async (friendName: string) => {
-//   friendInterface.value = await fetchy(`/api/interface/check/${friendName}`, "GET");
-// };
 
 onBeforeMount(async () => {
   await getFamilyMembers();
@@ -56,8 +54,13 @@ onBeforeMount(async () => {
       <p class="threadTitle">{{ familyTitle }}</p>
     </div>
     <div class="base">
-      <article class="timestamp">
+      <article class="member">
         <p>Members: {{ memberUsernames }}</p>
+      </article>
+    </div>
+    <div class="base">
+      <article class="timestamp">
+        <p>Created {{ formatDateDashed(props.family.dateCreated) }}</p>
       </article>
     </div>
   </div>
@@ -119,6 +122,14 @@ menu {
   gap: 1em;
   padding: 0;
   margin: 0;
+}
+
+.member {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.9em;
+  font-style: italic;
+  flex-direction: column;
 }
 
 .timestamp {
