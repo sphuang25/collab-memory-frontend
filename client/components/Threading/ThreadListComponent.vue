@@ -1,20 +1,20 @@
 <script setup lang="ts">
+import ThreadCreateForm from "@/components/Threading/CreateThreadForm.vue";
+import ThreadCard from "@/components/Threading/ThreadCard.vue";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
-import ThreadCard from "@/components/Threading/ThreadCard.vue";
-import ThreadCreateForm from "@/components/Threading/CreateThreadForm.vue";
 
 const { isLoggedIn } = storeToRefs(useUserStore());
-
+const props = defineProps(["familyID"]);
 const loaded = ref(false);
 let threads = ref();
 
 async function getThreads() {
   let threadResults;
   try {
-    threadResults = await fetchy("/api/threads", "GET");
+    threadResults = await fetchy(`/api/threads/${props.familyID}`, "GET");
   } catch (_) {
     return;
   }
@@ -29,10 +29,10 @@ onBeforeMount(async () => {
 
 <template>
   <div v-if="isLoggedIn" class="folderBody">
-    <div id="trapezoid"><h3 class="threadSideTitle">Threads</h3></div>
+    <!-- <div id="trapezoid"><h3 class="threadSideTitle">Threads</h3></div> -->
     <h3 class="threadMainTitle">Active Threads</h3>
     <section class="threads" v-if="loaded">
-      <ThreadCreateForm @refreshThreads="getThreads" />
+      <ThreadCreateForm :familyID="props.familyID" @refreshThreads="getThreads" />
       <article v-for="thread in threads" :key="thread._id">
         <ThreadCard :thread="thread" @refreshThreads="getThreads" />
       </article>

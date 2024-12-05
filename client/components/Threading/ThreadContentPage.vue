@@ -1,14 +1,15 @@
 <script setup lang="ts">
+import CreateArchiveForm from "@/components/Archiving/CreateArchiveForm.vue";
+import PostComponent from "@/components/Post/PostComponent.vue";
+import router from "@/router";
 import { useUserStore } from "@/stores/user";
-import { storeToRefs } from "pinia";
-import { computed, onBeforeMount, ref } from "vue";
 import { fetchy } from "@/utils/fetchy";
 import { format, formatDistanceToNow } from "date-fns";
-import PostComponent from "@/components/Post/PostComponent.vue";
-import CreateArchiveForm from "@/components/Archiving/CreateArchiveForm.vue";
-const { isLoggedIn } = storeToRefs(useUserStore());
-import { useRoute } from "vue-router";
+import { storeToRefs } from "pinia";
 import "primeicons/primeicons.css";
+import { computed, onBeforeMount, ref } from "vue";
+import { useRoute } from "vue-router";
+const { isLoggedIn } = storeToRefs(useUserStore());
 //npm install primeicons
 const currentRoute = useRoute();
 const currentRouteName = computed(() => currentRoute.name);
@@ -19,12 +20,17 @@ const posts = ref();
 const loaded = ref(false);
 const content = ref("");
 const contentType = ref("");
+const familyName = ref("");
 const memoryToggle = ref(false);
 const selectedPosts = ref<string[]>([]);
+const showTextHome = ref(false);
+const showTextThread = ref(false);
+
 async function getThread(id: string) {
   let threadResult;
   try {
     threadResult = await fetchy(`/api/thread/${id}`, "GET");
+    familyName.value = await fetchy(`/api/family/name/${threadResult.familyID}`, "GET");
   } catch (e) {
     return;
   }
@@ -34,7 +40,7 @@ async function getThread(id: string) {
 async function getThreadContent(id: string) {
   let contentResult;
   try {
-    contentResult = await fetchy(`/api/threads/${id}`, "GET");
+    contentResult = await fetchy(`/api/thread/posts/${id}`, "GET");
   } catch (e) {
     return;
   }
@@ -107,13 +113,15 @@ onBeforeMount(async () => {
     <div class="threadHeader">
       <div class="threadTitleDate">
         <div class="titleBackArrow">
-          <RouterLink :to="{ name: 'Threads' }" class="oval" :class="{ clicked: currentRouteName === 'Threads' || currentRouteName === 'Thread Content' }"
-            ><i class="pi pi-chevron-left backArrow" style="font-size: 2rem"></i
-          ></RouterLink>
+          <i class="pi pi-building-columns" @mouseover="showTextHome = true" @mouseleave="showTextHome = false" style="font-size: 2rem" v-on:click="router.push(`/family/${thread.familyID}`)"></i>
+          <article v-if="showTextHome" class="text-box hint">Back To Family</article>
+          <i class="pi pi-book" @mouseover="showTextThread = true" @mouseleave="showTextThread = false" style="font-size: 2rem" v-on:click="router.push(`/threads`)"></i>
+          <article v-if="showTextThread" class="text-box hint">See All Threads</article>
           <p class="threadTitle">{{ thread.title }}</p>
           <CreateArchiveForm v-if="memoryToggle" :selectedPosts="selectedPosts" @cancelArchive="toggleMemory" @submitted="clearSelectedPosts"></CreateArchiveForm>
         </div>
         <article class="timestamp">
+          <p>Family:{{ familyName }}</p>
           <p>by: {{ thread.creator }}</p>
           <p>{{ formatDateDashed(thread.dateCreated) }}</p>
           <p v-if="thread.dateCreated !== thread.dateUpdated">Last Updated: {{ formatRelativeTime(thread.dateUpdated) }}</p>
@@ -341,5 +349,13 @@ button {
   display: flex;
   align-items: center;
   width: 100%;
+}
+
+.hint {
+  background-color: red;
+  color: white;
+  position: absolute;
+  top: inherit;
+  right: inherit;
 }
 </style>

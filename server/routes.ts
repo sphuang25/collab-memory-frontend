@@ -5,7 +5,6 @@ import { Router, getExpressRouter } from "./framework/router";
 import { Archiving, Authing, Familying, Posting, Profiling, Sessioning, Threading } from "./app";
 import { PostDoc, PostOptions } from "./concepts/posting";
 import { SessionDoc } from "./concepts/sessioning";
-import { ThreadDoc } from "./concepts/threading";
 import Responses from "./responses";
 
 import { z } from "zod";
@@ -187,17 +186,11 @@ class Routes {
   }
 
   //Threading Routes
-  @Router.get("/threads")
-  async getThreads(session: SessionDoc) {
-    const user = Sessioning.getUser(session);
-    const threads = await Threading.getThreads();
-    const userThreads: Array<ThreadDoc> = [];
-    for (const t of threads) {
-      if (t.members.includes(user) || t.creator.toString() === user.toString()) {
-        userThreads.push(t);
-      }
-    }
-    return Responses.threads(userThreads);
+  @Router.get("/threads/:familyID")
+  async getThreads(session: SessionDoc, familyID: ObjectId) {
+    familyID = new ObjectId(familyID);
+    const threads = await Threading.getThreads(familyID);
+    return Responses.threads(threads);
   }
 
   @Router.get("/thread/:id")
@@ -207,26 +200,19 @@ class Routes {
     return Responses.thread(thread);
   }
 
-  @Router.post("/threads")
+  @Router.post("/threads/:familyID")
   //Note: removed function to create post when creating a thread!
-  async createThread(session: SessionDoc, title: string, threadContent: string, members: string) {
+  async createThread(session: SessionDoc, title: string, familyID: ObjectId) {
     const user = Sessioning.getUser(session);
-    let content: Array<ObjectId> = [];
-    let memberList: Array<ObjectId> = [];
-    if (threadContent) {
-      content = threadContent.split(",").map((id) => new ObjectId(id));
-    }
-    if (members) {
-      memberList = members.split(",").map((id) => new ObjectId(id));
-    }
-    const thread = await Threading.createThread(user, title, content, memberList);
+    familyID = new ObjectId(familyID);
+    const thread = await Threading.createThread(user, title, familyID);
     return { msg: thread.msg, thread: await Responses.thread(thread.thread) };
   }
 
   @Router.delete("/threads/:id")
   async deleteThread(session: SessionDoc, id: string) {
     const user = Sessioning.getUser(session);
-    const threadId = new ObjectId(id);
+    const threadId = new ObjectId(threadID);
     const threadContent = await Threading.getThreadContent(threadId);
     await Threading.assertCreatorIsUser(threadId, user);
     for (const p of threadContent.content) {
@@ -236,37 +222,21 @@ class Routes {
     return { msg: thread.msg };
   }
 
-  @Router.patch("/threads/:id")
-  async editThreadTitle(session: SessionDoc, id: string, title: string) {
+  @Router.patch("/threads/:threadID")
+  async editThreadTitle(session: SessionDoc, threadID: string, title: string) {
     const user = Sessioning.getUser(session);
-    const threadId = new ObjectId(id);
+    const threadId = new ObjectId(threadID);
     await Threading.assertCreatorIsUser(threadId, user);
     const thread = await Threading.editThreadTitle(threadId, title);
     return { msg: thread.msg };
   }
 
-  @Router.get("/threads/:id")
-  async getThreadPosts(id: string) {
-    const threadId = new ObjectId(id);
+  @Router.get("/thread/posts/:threadID")
+  async getThreadPosts(threadID: string) {
+    const threadId = new ObjectId(threadID);
     const threads = await Threading.getThreadContent(threadId);
     const posts: Array<PostDoc> = await Posting.getManyPostsById(threads.content);
     return Responses.posts(posts);
-  }
-
-  @Router.patch("/joinThreads/:id")
-  async joinThread(id: string, session: SessionDoc) {
-    const threadId = new ObjectId(id);
-    const user = Sessioning.getUser(session);
-    const thread = await Threading.joinThread(threadId, user);
-    return { msg: thread.msg };
-  }
-
-  @Router.patch("/leaveThreads/:id")
-  async leaveThread(id: string, session: SessionDoc) {
-    const threadId = new ObjectId(id);
-    const user = Sessioning.getUser(session);
-    const thread = await Threading.leaveThread(threadId, user);
-    return { msg: thread.msg };
   }
 
   @Router.get("/family/invite")

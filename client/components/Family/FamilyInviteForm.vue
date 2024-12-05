@@ -33,6 +33,11 @@ const emptyForm = () => {
 </template>
 
 <style scoped>
+p {
+  font-size: 2em;
+  font-weight: bold;
+}
+
 form {
   display: flex;
   flex-direction: column;

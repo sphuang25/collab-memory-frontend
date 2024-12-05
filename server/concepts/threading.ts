@@ -6,7 +6,7 @@ import { NotAllowedError, NotFoundError } from "./errors";
 export interface ThreadDoc extends BaseDoc {
   creator: ObjectId;
   title: string;
-  members: Array<ObjectId>;
+  familyID: ObjectId;
   content: Array<ObjectId>;
 }
 
@@ -24,9 +24,9 @@ export default class ThreadingConcept {
   }
 
   //get all threads
-  async getThreads() {
+  async getThreads(familyID: ObjectId) {
     // Returns all threads from newest to oldest
-    return await this.threads.readMany({}, { sort: { dateCreated: -1 } });
+    return await this.threads.readMany({ familyID: familyID }, { sort: { dateCreated: -1 } });
   }
 
   //get thread with given id
@@ -35,20 +35,9 @@ export default class ThreadingConcept {
   }
 
   //creates new thread
-  async createThread(creator: ObjectId, title: string, origContent: Array<ObjectId>, origMembers: Array<ObjectId>) {
-    let content: Array<ObjectId>;
-    let members: Array<ObjectId>;
-    if (!origContent) {
-      content = [];
-    } else {
-      content = [...origContent];
-    }
-    if (!origMembers) {
-      members = [];
-    } else {
-      members = [...origMembers];
-    }
-    const _id = await this.threads.createOne({ creator, title, members, content });
+  async createThread(creator: ObjectId, title: string, family: ObjectId) {
+    const content: Array<ObjectId> = [];
+    const _id = await this.threads.createOne({ creator, title, familyID: family, content });
     return { msg: "Thread successfully created!", thread: await this.threads.readOne({ _id }) };
   }
 
@@ -102,29 +91,6 @@ export default class ThreadingConcept {
       }
     }
     return { msg: "Post unable to be removed from thread!" };
-  }
-
-  // Join thread (add error if try to join thread already did)
-  async joinThread(_id: ObjectId, itemId: ObjectId) {
-    const thread = await this.threads.readOne({ _id });
-    console.log(thread);
-    if (thread != null && !thread.content.includes(itemId)) {
-      thread.members.push(itemId);
-      await this.threads.partialUpdateOne({ _id }, { members: thread.members });
-      return { msg: "User successfully joined thread!" };
-    }
-    return { msg: "User unable to join thread!" };
-  }
-
-  // Leave thread
-  async leaveThread(_id: ObjectId, itemId: ObjectId) {
-    const thread = await this.threads.readOne({ _id });
-    if (thread != null && !thread.members.includes(itemId)) {
-      thread.members = thread.members.filter((member) => !member.equals(itemId));
-      await this.threads.partialUpdateOne({ _id }, { members: thread.members });
-      return { msg: "User successfully left thread!" };
-    }
-    return { msg: "User unable to leave thread!" };
   }
 
   async assertCreatorIsUser(_id: ObjectId, user: ObjectId) {

@@ -5,12 +5,11 @@ import { fetchy } from "../../utils/fetchy";
 const title = ref("");
 const showForm = ref(false);
 const emit = defineEmits(["refreshThreads"]);
+const props = defineProps(["familyID"]);
 
 const createThread = async (title: string) => {
   try {
-    await fetchy("/api/threads", "POST", {
-      body: { title },
-    });
+    await fetchy(`/api/threads/${props.familyID}`, "POST", { body: { title: title } });
   } catch (_) {
     return;
   }

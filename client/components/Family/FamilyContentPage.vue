@@ -5,6 +5,7 @@ import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
+import ThreadListComponent from "../Threading/ThreadListComponent.vue";
 import FamilyInvitesList from "./FamilyInvitesList.vue";
 import FamilyMemberList from "./FamilyMemberList.vue";
 const userStore = useUserStore();
@@ -12,7 +13,7 @@ const { isLoggedIn } = storeToRefs(userStore);
 
 const { currentUsername } = storeToRefs(useUserStore());
 const familyTitle = ref("");
-const familyPage = ref(""); // members, threads
+const familyPage = ref("threads"); // members, threads
 
 const route = useRoute();
 const familyID = String(route.params.id);
@@ -76,10 +77,12 @@ onBeforeMount(async () => {
       <section v-if="familyPage === `requests`">
         <FamilyInvitesList :familyID="familyID" />
       </section>
-      <section v-if="familyPage === `members`">
+      <section v-else-if="familyPage === `members`">
         <FamilyMemberList :familyID="familyID" />
       </section>
-      <p class="familyMainTitle" v-else-if="familyPage === `threads`">Threads will be placed here!</p>
+      <section v-else>
+        <ThreadListComponent :familyID="familyID" />
+      </section>
     </div>
   </div>
 </template>

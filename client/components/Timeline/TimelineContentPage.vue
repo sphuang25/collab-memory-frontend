@@ -17,9 +17,6 @@ const thread = ref();
 const posts = ref();
 const loaded = ref(false);
 const content = ref("");
-const contentType = ref("");
-const memoryToggle = ref(false);
-const selectedPosts = ref<string[]>([]);
 async function getThread(id: string) {
   let threadResult;
   try {

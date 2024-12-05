@@ -14,6 +14,6 @@ export const Authing = new AuthenticatingConcept("users");
 export const Posting = new PostingConcept("posts");
 export const Friending = new FriendingConcept("friends");
 export const Profiling = new ProfilingConcept("profiles");
-export const Threading = new ThreadingConcept("threads");
+export const Threading = new ThreadingConcept("threads_in_family");
 export const Familying = new FamilyingConcept("families");
 export const Archiving = new ArchivingConcept("archives");
