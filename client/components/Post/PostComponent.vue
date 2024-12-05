@@ -2,22 +2,57 @@
 const props = defineProps(["post"]);
 import { format } from "date-fns";
 import { ref } from "vue";
+import EditPostForm from "@/components/Post/EditPostForm.vue";
+import { fetchy } from "../../utils/fetchy";
+
 const showMenu = ref(false);
+const showEditForm = ref(false);
+const emit = defineEmits(["refreshPosts", "refreshEditedPost"]);
 
 const formatDateDashed = (date: string) => {
   return format(new Date(date), "yyyy-MM-dd"); // Formats as 2024-11-16
 };
 
 const toggleMenu = () => {
-  showMenu.value = !showMenu.value; // Toggle form visibility
+  showMenu.value = !showMenu.value; // Toggle menu visibility
+};
+
+const toggleEditForm = () => {
+  showEditForm.value = !showEditForm.value;
+};
+
+const deletePost = async () => {
+  try {
+    await fetchy(`/api/posts/${props.post._id}`, "DELETE");
+    showMenu.value = false; // Hide menu after deletion
+    emit("refreshPosts", props.post.thread);
+  } catch (e) {
+    return;
+  }
 };
 </script>
 
 <template>
+  <!-- Post Details -->
   <div class="card">
     <div class="base">
       <i class="pi pi-ellipsis-h editMenu" style="font-size: 1.5rem" @click="toggleMenu"></i>
-      <div v-if="showMenu" class="menuBox"></div>
+      <!-- Menu Box -->
+      <div v-if="showMenu" class="menuBox">
+        <button @click="toggleEditForm()">Edit</button>
+        <button @click="deletePost()">Delete</button>
+      </div>
+      <!-- Edit Form Popup -->
+      <div v-if="showEditForm" class="editFormPopup">
+        <EditPostForm
+          :post="post"
+          @close="showEditForm = false"
+          @update="
+            showEditForm = false;
+            emit('refreshPosts', props.post.thread);
+          "
+        />
+      </div>
       <p class="postContent">{{ props.post.content }}</p>
       <p class="author">by: {{ props.post.author }}</p>
       <p class="date">{{ formatDateDashed(props.post.dateCreated) }}</p>
@@ -101,5 +136,34 @@ menu {
   gap: 1em;
   padding: 10px;
   overflow-y: scroll;
+}
+/* Menu Box */
+.menuBox {
+  position: absolute;
+  top: 35px;
+  right: 10px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 0.5em;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  gap: 5px;
+}
+
+/* Edit Form Popup */
+.editFormPopup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 20;
+  border-radius: 0.5em;
 }
 </style>
