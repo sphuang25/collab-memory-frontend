@@ -11,8 +11,9 @@ export interface MemberDoc extends BaseDoc {
   userID: ObjectId;
 }
 
-export interface FamilyRequestDoc extends BaseDoc {
-  userID: ObjectId;
+export interface FamilyInviteDoc extends BaseDoc {
+  fromID: ObjectId;
+  toID: ObjectId;
   familyID: ObjectId;
   status: "pending" | "rejected" | "accepted";
 }
@@ -22,7 +23,7 @@ export interface FamilyRequestDoc extends BaseDoc {
  */
 export default class FamilyingConcept {
   public readonly families: DocCollection<FamilyDoc>;
-  public readonly requests: DocCollection<FamilyRequestDoc>;
+  public readonly invites: DocCollection<FamilyInviteDoc>;
   public readonly members: DocCollection<MemberDoc>;
 
   /**
@@ -30,7 +31,7 @@ export default class FamilyingConcept {
    */
   constructor(collectionName: string) {
     this.families = new DocCollection<FamilyDoc>(collectionName);
-    this.requests = new DocCollection<FamilyRequestDoc>(collectionName + "_requests");
+    this.invites = new DocCollection<FamilyInviteDoc>(collectionName + "_requests");
     this.members = new DocCollection<MemberDoc>(collectionName + "_members");
   }
 
@@ -41,16 +42,17 @@ export default class FamilyingConcept {
     }
   }
 
-  private async canSendRequest(userID: ObjectId, familyID: ObjectId) {
-    await this.assertNotInFamily(userID, familyID);
+  private async canSendInvite(fromID: ObjectId, toID: ObjectId, familyID: ObjectId) {
+    await this.assertInFamily(fromID, familyID);
+    await this.assertNotInFamily(toID, familyID);
     // check if there is pending request between these users
-    const request = await this.requests.readOne({
-      userID: userID,
+    const request = await this.invites.readOne({
+      toID: toID,
       familyID: familyID,
       status: "pending",
     });
     if (request !== null) {
-      throw new FamilyRequestAlreadyExistsError(userID, familyID);
+      throw new FamilyRequestAlreadyExistsError(toID, familyID);
     }
   }
 
@@ -63,8 +65,8 @@ export default class FamilyingConcept {
     }
   }
 
-  private async removePendingRequest(userID: ObjectId, familyID: ObjectId) {
-    const request = await this.requests.popOne({ userID, familyID, status: "pending" });
+  private async removeInvite(userID: ObjectId, familyID: ObjectId) {
+    const request = await this.invites.popOne({ userID, familyID, status: "pending" });
     if (request === null) {
       throw new FamilyRequestNotFoundError(userID, familyID);
     }
@@ -76,34 +78,34 @@ export default class FamilyingConcept {
     return families;
   }
 
-  async getRequests(userID: ObjectId) {
-    await this.requests.readMany({ userID: userID, status: "pending" });
+  async getInvites(userID: ObjectId) {
+    await this.invites.readMany({ userID: userID, status: "pending" });
   }
 
-  async getFamilyRequests(familyID: ObjectId) {
-    await this.requests.readMany({ familyID: familyID, status: "pending" });
+  async getFamilyInvites(familyID: ObjectId) {
+    await this.invites.readMany({ familyID: familyID, status: "pending" });
   }
 
-  async sendRequest(userID: ObjectId, familyID: ObjectId) {
-    await this.canSendRequest(userID, familyID);
-    await this.requests.createOne({ userID, familyID, status: "pending" });
+  async sendInvite(fromID: ObjectId, toID: ObjectId, familyID: ObjectId) {
+    await this.canSendInvite(fromID, toID, familyID);
+    await this.invites.createOne({ fromID, toID, familyID, status: "pending" });
     return { msg: "Sent request!" };
   }
 
-  async acceptRequest(userID: ObjectId, familyID: ObjectId) {
-    await this.removePendingRequest(userID, familyID);
-    await Promise.all([this.requests.createOne({ userID, familyID, status: "accepted" }), this.addToFamily(userID, familyID)]);
+  async acceptInvite(userID: ObjectId, familyID: ObjectId) {
+    const prevInvite = await this.removeInvite(userID, familyID);
+    await Promise.all([this.invites.createOne({fromID: prevInvite.fromID, toID: userID, familyID: familyID, status: "accepted" }), this.addToFamily(userID, familyID)]);
     return { msg: "Accepted request!" };
   }
 
-  async rejectRequest(userID: ObjectId, familyID: ObjectId) {
-    await this.removePendingRequest(userID, familyID);
-    await this.requests.createOne({ userID, familyID, status: "rejected" });
+  async rejectInvite(userID: ObjectId, familyID: ObjectId) {
+    const prevInvite = await this.removeInvite(userID, familyID);
+    await this.invites.createOne({fromID: prevInvite.fromID, toID: userID, familyID: familyID, status: "rejected" });
     return { msg: "Rejected request!" };
   }
 
-  async removeRequest(userID: ObjectId, familyID: ObjectId) {
-    await this.removePendingRequest(userID, familyID);
+  async removeFamilyInvite(userID: ObjectId, familyID: ObjectId) {
+    await this.removeInvite(userID, familyID);
     return { msg: "Removed request!" };
   }
 
@@ -118,7 +120,7 @@ export default class FamilyingConcept {
 
   async deleteFamily(userID: ObjectId, familyID: ObjectId) {
     await this.assertInFamily(userID, familyID);
-    await Promise.all([this.families.deleteOne({ familyID: familyID }), this.requests.deleteMany({ familyID: familyID }), this.members.deleteMany({ familyID: familyID })]);
+    await Promise.all([this.families.deleteOne({ familyID: familyID }), this.invites.deleteMany({ familyID: familyID }), this.members.deleteMany({ familyID: familyID })]);
 
     return { msg: `Family ${familyID} is deleted!` };
   }
@@ -199,10 +201,10 @@ export class NotInFamilyError extends NotAllowedError {
 
 export class FamilyRequestAlreadyExistsError extends NotAllowedError {
   constructor(
-    public readonly userID: ObjectId,
+    public readonly toID: ObjectId,
     public readonly familyID: ObjectId,
   ) {
-    super("{0} has already sent a request to family {1}!", userID, familyID);
+    super("invitation to {0} for family {1} already exists!", toID, familyID);
   }
 }
 

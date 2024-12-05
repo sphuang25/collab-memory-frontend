@@ -44,12 +44,12 @@ onBeforeMount(async () => {
   <div v-if="isLoggedIn" class="folderBody">
     <div id="trapezoid"><h3 class="familySideTitle">Home</h3></div>
     <h3 class="familyMainTitle">Families List</h3>
-    <section class="threads">
+    <section>
       <article v-for="family in families" :key="family._id">
-        <div id="trapezoid"><h3 class="familySideTitle">Family</h3></div>
         <FamilyPreview :family="family" @refreshFamilies="getFamilies" />
       </article>
       <FamilyCreateForm class="familyPreview" @refreshFamilies="getFamilies" />
+      <h3 class="familyMainTitle">Invitations</h3>
     </section>
   </div>
 </template>
@@ -140,5 +140,6 @@ article {
   color: #3f3f44;
   text-align: center;
   font-size: 30px;
+  padding: 1em;
 }
 </style>

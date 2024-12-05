@@ -266,50 +266,51 @@ class Routes {
     return { msg: thread.msg };
   }
 
-  @Router.get("/family/request")
-  async getUserRequest(session: SessionDoc) {
+  @Router.get("/family/invite")
+  async getUserInvite(session: SessionDoc) {
     const user = Sessioning.getUser(session);
-    const requests = await Familying.getRequests(user);
+    const requests = await Familying.getInvites(user);
     return requests;
   }
 
-  @Router.get("/family/request/:id")
-  async getFamilyRequest(session: SessionDoc, familyID: ObjectId) {
+  @Router.get("/family/invite/:id")
+  async getFamilyInvite(session: SessionDoc, familyID: ObjectId) {
     const user = Sessioning.getUser(session);
     familyID = new ObjectId(familyID);
     await Familying.assertInFamily(user, familyID);
-    const requests = await Familying.getFamilyRequests(familyID);
+    const requests = await Familying.getFamilyInvites(familyID);
     return requests;
   }
 
-  @Router.post("/family/request")
-  async sendJoinFamilyRequest(session: SessionDoc, familyID: ObjectId) {
-    const user = Sessioning.getUser(session);
+  @Router.post("/family/invite")
+  async sendJoinFamilyInvite(session: SessionDoc, toID: ObjectId, familyID: ObjectId) {
+    const user = Sessioning.getUser(session)
+    toID = new ObjectId(toID);
     familyID = new ObjectId(familyID);
-    const request = await Familying.sendRequest(user, familyID);
+    const request = await Familying.sendInvite(user, toID, familyID);
     return { msg: request.msg };
   }
 
-  @Router.patch("/family/request/accept")
-  async acceptJoinFamilyRequest(session: SessionDoc, familyID: ObjectId) {
+  @Router.patch("/family/invite/accept")
+  async acceptJoinFamilyInvite(session: SessionDoc, familyID: ObjectId) {
     const user = Sessioning.getUser(session);
     familyID = new ObjectId(familyID);
-    const request = await Familying.acceptRequest(user, familyID);
+    const request = await Familying.acceptInvite(user, familyID);
     return { msg: request.msg };
   }
 
-  @Router.patch("/family/request/reject")
-  async rejectJoinFamilyRequest(session: SessionDoc, familyID: ObjectId) {
+  @Router.patch("/family/invite/reject")
+  async rejectJoinFamilyInvite(session: SessionDoc, familyID: ObjectId) {
     const user = Sessioning.getUser(session);
     familyID = new ObjectId(familyID);
-    const request = await Familying.rejectRequest(user, familyID);
+    const request = await Familying.rejectInvite(user, familyID);
     return { msg: request.msg };
   }
 
-  @Router.delete("/family/request")
-  async removeJoinFamilyRequest(session: SessionDoc, familyID: ObjectId) {
+  @Router.delete("/family/invite")
+  async removeJoinFamilyInvite(session: SessionDoc, familyID: ObjectId) {
     const user = Sessioning.getUser(session);
-    const request = await Familying.removeRequest(user, familyID);
+    const request = await Familying.removeFamilyInvite(user, familyID);
     return { msg: request.msg };
   }
 

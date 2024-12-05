@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useUserStore } from "@/stores/user";
-import { formatDate } from "@/utils/formatDate";
 import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
 import { fetchy } from "../../utils/fetchy";
@@ -9,6 +8,12 @@ const emit = defineEmits(["refreshMembers"]);
 const { currentUsername } = storeToRefs(useUserStore());
 
 const username = ref("");
+
+import { format } from "date-fns";
+
+const formatDateDashed = (date: string) => {
+  return format(new Date(date), "yyyy-MM-dd"); // Formats as 2024-11-16
+};
 
 const getUser = async () => {
   try {
@@ -34,7 +39,7 @@ onBeforeMount(async () => {
 
 <template>
   <p class="sender">{{ username }}</p>
-  <p class="timestamp">Join since: {{ formatDate(props.member.dateCreated) }}</p>
+  <p class="timestamp">Join since: {{ formatDateDashed(props.member.dateCreated) }}</p>
   <div class="base">
     <article class="timestamp"></article>
     <menu>
@@ -49,9 +54,7 @@ p {
 }
 
 .timestamp {
-  display: flex;
-  justify-content: flex-end;
-  font-size: 0.5em;
+  font-size: 0.25em;
   font-style: italic;
   font-weight: lighter;
 }

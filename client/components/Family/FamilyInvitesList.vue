@@ -14,10 +14,10 @@ const loaded = ref(false);
 let members = ref<Array<Record<string, string>>>([]);
 let requests = ref<Array<Record<string, string>>>([]);
 
-const getFamilyMembers = async () => {
+const getInvites = async () => {
   let membersResult;
   try {
-    membersResult = await fetchy(`/api/family/member/${props.familyID}`, "GET");
+    membersResult = await fetchy(`/api/family/request/${props.familyID}`, "GET");
   } catch {
     return;
   }
@@ -25,8 +25,7 @@ const getFamilyMembers = async () => {
 };
 
 onBeforeMount(async () => {
-  await getFamilyMembers();
-  //   await getRequests();
+  await getInvites();
   loaded.value = true;
 });
 </script>
@@ -34,7 +33,7 @@ onBeforeMount(async () => {
 <template>
   <section v-if="members.length !== 0">
     <article v-for="member in members" :key="member._id">
-      <MemberComponent :member="member" @refreshMembers="getFamilyMembers" />
+      <MemberComponent :member="member" @refreshMembers="getInvites" />
     </article>
   </section>
 </template>
