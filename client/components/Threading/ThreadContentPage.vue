@@ -101,7 +101,7 @@ onBeforeMount(async () => {
     <div class="posts">
       <div class="postGrid" v-if="loaded && posts.length !== 0">
         <article v-for="post in posts" :key="post._id">
-          <PostComponent :post="post" />
+          <PostComponent :post="post" @refreshPosts="getThreadContent" />
         </article>
       </div>
     </div>
