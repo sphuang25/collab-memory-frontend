@@ -1,21 +1,12 @@
 <script setup lang="ts">
-<<<<<<< HEAD
-import { format, formatDistanceToNow } from "date-fns";
-import { ref } from "vue";
-import router from "@/router";
-import { fetchy } from "../../utils/fetchy";
 import EditThreadForm from "@/components/Threading/EditThreadForm.vue";
-
-const props = defineProps(["thread"]);
-=======
-const props = defineProps(["thread"]);
 import router from "@/router";
 import { format, formatDistanceToNow } from "date-fns";
 import { ref } from "vue";
 import { fetchy } from "../../utils/fetchy";
-import EditThreadForm from "./EditThreadForm.vue";
 
->>>>>>> refs/remotes/origin/main
+const props = defineProps(["thread"]);
+
 const emit = defineEmits(["refreshThreads"]);
 
 const formatDateDashed = (date: string) => {
