@@ -1,13 +1,10 @@
 <script setup lang="ts">
-// import CreateFriendRequestForm from "@/components/Friend/CreateFriendRequestForm.vue";
-// import ReceivedRequestComponent from "@/components/Friend/ReceivedRequestComponent.vue";
-// import SentRequestComponent from "@/components/Friend/SentRequestComponent.vue";
-
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
 import FamilyInviteForm from "./FamilyInviteForm.vue";
+import FamilySentInviteCard from "./FamilySentInviteCard.vue";
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
 const props = defineProps(["familyID"]);
 const loaded = ref(false);
@@ -29,20 +26,22 @@ onBeforeMount(async () => {
 
 <template>
   <section>
-    <FamilyInviteForm :familyID="familyID" />
+    <FamilyInviteForm :familyID="familyID" @refreshInvites="getInvites" />
   </section>
 
-  <!-- <section v-if="invites.length !== 0">
+  <section v-if="invites.length !== 0">
     <article v-for="invite in invites" :key="invite._id">
-      <FamilyReceivedInviteCard :familyID="familyID" @refreshInvites="getInvites" />
+      <FamilySentInviteCard :invite="invite" @refreshInvites="getInvites" />
     </article>
-  </section> -->
+  </section>
 </template>
 
 <style scoped>
 section {
   align-items: center;
   align-content: center;
+  padding: 1em;
+  row-gap: 1em;
 }
 
 section,
@@ -58,7 +57,9 @@ article {
   display: flex;
   flex-direction: column;
   gap: 0.5em;
-  padding: 1em;
+  padding: 2em;
+  border: 1px solid black;
+  outline-style: outset;
 }
 
 .posts {

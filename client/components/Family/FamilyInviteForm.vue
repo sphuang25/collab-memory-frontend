@@ -5,6 +5,7 @@ import { storeToRefs } from "pinia";
 import { ref } from "vue";
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
 const props = defineProps(["familyID"]);
+const emit = defineEmits(["refreshInvites"]);
 const username = ref("");
 
 const sendInvite = async (username: string) => {
@@ -13,6 +14,8 @@ const sendInvite = async (username: string) => {
   } catch {
     return;
   }
+  emptyForm();
+  emit("refreshInvites");
 };
 
 const emptyForm = () => {

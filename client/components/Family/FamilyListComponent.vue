@@ -6,13 +6,22 @@ import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
 import FamilyCreateForm from "./FamilyCreateForm.vue";
 import FamilyPreview from "./FamilyPreview.vue";
+import FamilyReceivedInviteCard from "./FamilyReceivedInviteCard.vue";
 
 const userStore = useUserStore();
 const { isLoggedIn } = storeToRefs(userStore);
 
 const loaded = ref(false);
 let families = ref<Array<Record<string, string>>>([]);
-let requests = ref<Array<Record<string, string>>>([]);
+let invites = ref<Array<Record<string, string>>>([]);
+
+async function getInvites() {
+  try {
+    invites.value = await fetchy("/api/family/invite", "GET");
+  } catch (_) {
+    return;
+  }
+}
 
 async function getFamilies() {
   let familyResults;
@@ -26,6 +35,7 @@ async function getFamilies() {
 
 onBeforeMount(async () => {
   await getFamilies();
+  await getInvites();
 });
 </script>
 
@@ -40,6 +50,12 @@ onBeforeMount(async () => {
       </article>
       <FamilyCreateForm class="familyPreview" @refreshFamilies="getFamilies" />
       <h3 class="familyMainTitle">Invitations</h3>
+      <div v-if="invites.length !== 0">
+        <article v-for="invite in invites" :key="invite._id">
+          <FamilyReceivedInviteCard :invite="invite" @refreshInvites="getInvites" />
+        </article>
+      </div>
+      <p v-else>Cleared! There is no invitation.</p>
     </section>
   </div>
 </template>
@@ -76,6 +92,17 @@ article {
   max-height: 250px;
 }
 
+.articleForInvite {
+  background-color: var(--base-bg);
+  border-radius: 1em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  padding: 2em;
+  border: 1px solid black;
+  outline-style: outset;
+}
+
 .familyPreview {
   border-radius: 1em;
   display: flex;
@@ -108,6 +135,10 @@ article {
   transform: rotate(-90deg);
   height: 0;
   width: 110px;
+}
+
+div {
+  width: 70%;
 }
 
 .threads {

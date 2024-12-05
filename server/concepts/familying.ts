@@ -66,7 +66,7 @@ export default class FamilyingConcept {
   }
 
   private async removeInvite(userID: ObjectId, familyID: ObjectId) {
-    const request = await this.invites.popOne({ userID, familyID, status: "pending" });
+    const request = await this.invites.popOne({ toID: userID, familyID: familyID, status: "pending" });
     if (request === null) {
       throw new FamilyRequestNotFoundError(userID, familyID);
     }
@@ -79,11 +79,12 @@ export default class FamilyingConcept {
   }
 
   async getInvites(userID: ObjectId) {
-    await this.invites.readMany({ toID: userID, status: "pending" });
+    return await this.invites.readMany({ toID: userID, status: "pending" });
   }
 
   async getFamilyInvites(familyID: ObjectId) {
-    await this.invites.readMany({ familyID: familyID, status: "pending" });
+    const invites = await this.invites.readMany({ familyID: familyID, status: "pending" });
+    return invites;
   }
 
   async sendInvite(fromID: ObjectId, toID: ObjectId, familyID: ObjectId) {
@@ -104,8 +105,9 @@ export default class FamilyingConcept {
     return { msg: "Rejected request!" };
   }
 
-  async removeFamilyInvite(userID: ObjectId, familyID: ObjectId) {
-    await this.removeInvite(userID, familyID);
+  async removeFamilyInvite(userID: ObjectId, inviteToID: ObjectId, familyID: ObjectId) {
+    await this.assertInFamily(userID, familyID);
+    await this.removeInvite(inviteToID, familyID);
     return { msg: "Removed request!" };
   }
 

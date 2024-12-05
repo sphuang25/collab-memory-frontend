@@ -282,9 +282,10 @@ class Routes {
   }
 
   @Router.delete("/family/:familyID/invite/:inviteToID")
-  async removeJoinFamilyInvite(session: SessionDoc, inviteToID: ObjectId, familyID: ObjectId) {
+  async removeJoinFamilyInvite(session: SessionDoc, familyID: ObjectId, inviteToID: ObjectId) {
     const user = Sessioning.getUser(session);
     inviteToID = new ObjectId(inviteToID);
+    familyID = new ObjectId(familyID);
     const request = await Familying.removeFamilyInvite(user, inviteToID, familyID);
     return { msg: request.msg };
   }
