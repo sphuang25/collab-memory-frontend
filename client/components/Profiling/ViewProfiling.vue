@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { useUserStore } from "@/stores/user";
+import { storeToRefs } from "pinia";
 import { onMounted, ref } from "vue";
 import { fetchy } from "../../utils/fetchy";
+const { isLoggedIn } = storeToRefs(useUserStore());
 
 interface Profile {
   username: string;
