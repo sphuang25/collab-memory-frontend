@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Authing, Familying, Posting, Profiling, Sessioning, Threading } from "./app";
+import { Authing, Familying, Posting, Sessioning, Threading } from "./app";
 import { PostDoc, PostOptions } from "./concepts/posting";
 import { SessionDoc } from "./concepts/sessioning";
 import { ThreadDoc } from "./concepts/threading";
@@ -49,35 +49,9 @@ class Routes {
   }
 
   @Router.post("/users")
-  @Router.validate(
-    z.object({
-      username: z.string().min(1),
-      password: z.string().min(1),
-      profileResponses: z.array(z.string()).optional(),
-    }),
-  )
-  async createUser(session: SessionDoc, username: string, password: string, profileResponses?: string[]) {
+  async createUser(session: SessionDoc, username: string, password: string) {
     Sessioning.isLoggedOut(session);
-
-    if (profileResponses && profileResponses.length > 0) {
-      const invalidChoices = profileResponses.filter((choice) => !this.profilingOptions.includes(choice));
-      if (invalidChoices.length > 0) {
-        throw new Error(`Invalid choices: ${invalidChoices.join(", ")}`);
-      }
-    }
-
-    const result = await Authing.create(username, password);
-    const user = result.user;
-
-    if (!user) {
-      throw new Error("User creation failed.");
-    }
-
-    if (profileResponses && profileResponses.length > 0) {
-      await Profiling.ask(user._id, this.profilingQuestion, profileResponses);
-    }
-
-    return { msg: "User created successfully!", user };
+    return await Authing.create(username, password);
   }
 
   @Router.patch("/users/username")
@@ -307,10 +281,11 @@ class Routes {
     return { msg: request.msg };
   }
 
-  @Router.delete("/family/invite")
-  async removeJoinFamilyInvite(session: SessionDoc, familyID: ObjectId) {
+  @Router.delete("/family/:familyID/invite/:inviteToID")
+  async removeJoinFamilyInvite(session: SessionDoc, inviteToID: ObjectId, familyID: ObjectId) {
     const user = Sessioning.getUser(session);
-    const request = await Familying.removeFamilyInvite(user, familyID);
+    inviteToID = new ObjectId(inviteToID);
+    const request = await Familying.removeFamilyInvite(user, inviteToID, familyID);
     return { msg: request.msg };
   }
 
