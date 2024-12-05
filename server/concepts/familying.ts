@@ -79,7 +79,7 @@ export default class FamilyingConcept {
   }
 
   async getInvites(userID: ObjectId) {
-    await this.invites.readMany({ userID: userID, status: "pending" });
+    await this.invites.readMany({ toID: userID, status: "pending" });
   }
 
   async getFamilyInvites(familyID: ObjectId) {
@@ -94,13 +94,13 @@ export default class FamilyingConcept {
 
   async acceptInvite(userID: ObjectId, familyID: ObjectId) {
     const prevInvite = await this.removeInvite(userID, familyID);
-    await Promise.all([this.invites.createOne({fromID: prevInvite.fromID, toID: userID, familyID: familyID, status: "accepted" }), this.addToFamily(userID, familyID)]);
+    await Promise.all([this.invites.createOne({ fromID: prevInvite.fromID, toID: userID, familyID: familyID, status: "accepted" }), this.addToFamily(userID, familyID)]);
     return { msg: "Accepted request!" };
   }
 
   async rejectInvite(userID: ObjectId, familyID: ObjectId) {
     const prevInvite = await this.removeInvite(userID, familyID);
-    await this.invites.createOne({fromID: prevInvite.fromID, toID: userID, familyID: familyID, status: "rejected" });
+    await this.invites.createOne({ fromID: prevInvite.fromID, toID: userID, familyID: familyID, status: "rejected" });
     return { msg: "Rejected request!" };
   }
 

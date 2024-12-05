@@ -24,27 +24,17 @@ async function getFamilies() {
   families.value = familyResults;
 }
 
-async function getRequests() {
-  let requestResults;
-  try {
-    requestResults = await fetchy("/api/family/request", "GET");
-  } catch (_) {
-    return;
-  }
-  requests.value = requestResults;
-}
-
 onBeforeMount(async () => {
   await getFamilies();
-  await getRequests();
 });
 </script>
 
 <template>
   <div v-if="isLoggedIn" class="folderBody">
     <div id="trapezoid"><h3 class="familySideTitle">Home</h3></div>
-    <h3 class="familyMainTitle">Families List</h3>
+
     <section>
+      <h3 class="familyMainTitle">Families List</h3>
       <article v-for="family in families" :key="family._id">
         <FamilyPreview :family="family" @refreshFamilies="getFamilies" />
       </article>
@@ -141,5 +131,6 @@ article {
   text-align: center;
   font-size: 30px;
   padding: 1em;
+  width: 100%;
 }
 </style>

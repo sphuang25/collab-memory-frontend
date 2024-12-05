@@ -273,7 +273,7 @@ class Routes {
     return requests;
   }
 
-  @Router.get("/family/invite/:id")
+  @Router.get("/family/invite/:familyID")
   async getFamilyInvite(session: SessionDoc, familyID: ObjectId) {
     const user = Sessioning.getUser(session);
     familyID = new ObjectId(familyID);
@@ -283,11 +283,11 @@ class Routes {
   }
 
   @Router.post("/family/invite")
-  async sendJoinFamilyInvite(session: SessionDoc, toID: ObjectId, familyID: ObjectId) {
-    const user = Sessioning.getUser(session)
-    toID = new ObjectId(toID);
+  async sendJoinFamilyInviteByUsername(session: SessionDoc, username: string, familyID: ObjectId) {
+    const user = Sessioning.getUser(session);
+    const to = await Authing.getUserByUsername(username);
     familyID = new ObjectId(familyID);
-    const request = await Familying.sendInvite(user, toID, familyID);
+    const request = await Familying.sendInvite(user, to._id, familyID);
     return { msg: request.msg };
   }
 

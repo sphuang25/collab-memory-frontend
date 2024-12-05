@@ -5,12 +5,12 @@ import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
+import FamilyInvitesList from "./FamilyInvitesList.vue";
 import FamilyMemberList from "./FamilyMemberList.vue";
 const userStore = useUserStore();
 const { isLoggedIn } = storeToRefs(userStore);
 
 const { currentUsername } = storeToRefs(useUserStore());
-const members = ref("");
 const familyTitle = ref("");
 const familyPage = ref(""); // members, threads
 
@@ -73,10 +73,12 @@ onBeforeMount(async () => {
       </menu>
     </div>
     <div>
+      <section v-if="familyPage === `requests`">
+        <FamilyInvitesList :familyID="familyID" />
+      </section>
       <section v-if="familyPage === `members`">
         <FamilyMemberList :familyID="familyID" />
       </section>
-      <p class="familyMainTitle" v-else-if="familyPage === `requests`">Requests will be placed here!</p>
       <p class="familyMainTitle" v-else-if="familyPage === `threads`">Threads will be placed here!</p>
     </div>
   </div>
@@ -94,6 +96,10 @@ menu {
   justify-content: space-evenly;
 }
 
+section {
+  align-items: center;
+}
+
 .menu:hover {
   background: rgb(191, 191, 191);
   cursor: pointer;
@@ -107,7 +113,7 @@ article {
   gap: 0.5em;
   width: calc(50% - 1em);
   box-sizing: border-box;
-  max-width: 40%;
+  max-width: 60%;
   min-height: 250px;
   max-height: 250px;
 }

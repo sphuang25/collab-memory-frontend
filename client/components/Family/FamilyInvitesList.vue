@@ -2,26 +2,23 @@
 // import CreateFriendRequestForm from "@/components/Friend/CreateFriendRequestForm.vue";
 // import ReceivedRequestComponent from "@/components/Friend/ReceivedRequestComponent.vue";
 // import SentRequestComponent from "@/components/Friend/SentRequestComponent.vue";
-import MemberComponent from "./MemberComponent.vue";
 
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
+import FamilyInviteForm from "./FamilyInviteForm.vue";
 const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
 const props = defineProps(["familyID"]);
 const loaded = ref(false);
-let members = ref<Array<Record<string, string>>>([]);
-let requests = ref<Array<Record<string, string>>>([]);
+let invites = ref<Array<Record<string, string>>>([]);
 
 const getInvites = async () => {
-  let membersResult;
   try {
-    membersResult = await fetchy(`/api/family/request/${props.familyID}`, "GET");
+    invites.value = await fetchy(`/api/family/invite/${props.familyID}`, "GET");
   } catch {
     return;
   }
-  members.value = membersResult;
 };
 
 onBeforeMount(async () => {
@@ -31,19 +28,21 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <section v-if="members.length !== 0">
-    <article v-for="member in members" :key="member._id">
-      <MemberComponent :member="member" @refreshMembers="getInvites" />
-    </article>
+  <section>
+    <FamilyInviteForm :familyID="familyID" />
   </section>
+
+  <!-- <section v-if="invites.length !== 0">
+    <article v-for="invite in invites" :key="invite._id">
+      <FamilyReceivedInviteCard :familyID="familyID" @refreshInvites="getInvites" />
+    </article>
+  </section> -->
 </template>
 
 <style scoped>
 section {
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-  width: 70%;
+  align-items: center;
+  align-content: center;
 }
 
 section,

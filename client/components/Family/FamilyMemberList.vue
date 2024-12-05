@@ -12,21 +12,17 @@ const { currentUsername, isLoggedIn } = storeToRefs(useUserStore());
 const props = defineProps(["familyID"]);
 const loaded = ref(false);
 let members = ref<Array<Record<string, string>>>([]);
-let requests = ref<Array<Record<string, string>>>([]);
 
 const getFamilyMembers = async () => {
-  let membersResult;
   try {
-    membersResult = await fetchy(`/api/family/member/${props.familyID}`, "GET");
+    members.value = await fetchy(`/api/family/member/${props.familyID}`, "GET");
   } catch {
     return;
   }
-  members.value = membersResult;
 };
 
 onBeforeMount(async () => {
   await getFamilyMembers();
-  //   await getRequests();
   loaded.value = true;
 });
 </script>
@@ -60,6 +56,8 @@ article {
   display: flex;
   flex-direction: column;
   gap: 0.5em;
+  max-width: 70%;
+  min-width: 50%;
   padding: 1em;
 }
 
