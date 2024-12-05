@@ -19,6 +19,10 @@ export default class UserProfilingConcept {
     this.archives = new DocCollection<ArchiveDoc>(collectionName);
   }
 
+  async getArchives(user: ObjectId) {
+    return await this.archives.readMany({ creator: user }, { sort: { timePeriod: -1 } });
+  }
+
   async createArchive(creator: ObjectId, posts: ObjectId[], timePeriod: Date, caption: string) {
     const _id = await this.archives.createOne({ creator: creator, content: posts, timePeriod: timePeriod, caption: caption });
     return { msg: "Archive successfully created!", archive: await this.archives.readOne({ _id }) };

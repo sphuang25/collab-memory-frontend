@@ -33,12 +33,24 @@ export default class ProfilingConcept {
   }
 
   /**
+   * Get user with id `id` profile
+   * @param _id - The ID of the user.
+   */
+  async getUserProfile(_id: ObjectId) {
+    const profile = await this.profiles.readOne({ user: _id });
+    if (!profile) {
+      throw new ProfileNotFoundError(_id);
+    }
+    return profile;
+  }
+
+  /**
    * Update the user's profiling data for a specific question.
    * @param user - The ID of the user.
    * @param selectedChoices - The updated responses for the question.
    */
-  async updateProfile(_id: ObjectId, selectedChoices: string[]) {
-    await this.profiles.partialUpdateOne({ _id }, { selectedChoices }); // Reuse the ask method to perform the update.
+  async updateProfile(user: ObjectId, selectedChoices: string[]) {
+    await this.profiles.partialUpdateOne({ user }, { selectedChoices }); // Reuse the ask method to perform the update.
     return { msg: "Profile successfully updated!" };
   }
 

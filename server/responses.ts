@@ -79,7 +79,7 @@ export default class Responses {
    * Same as {@link archive} but for an array of ArchiveDoc for improved performance.
    */
   static async archives(archives: ArchiveDoc[]) {
-    const creators = await Authing.idsToUsernames(archives.map((a) => a.creator));
+    const creators = await Authing.idsToUsernames(archives.map((archive) => archive.creator));
     return archives.map((archive, i) => ({ ...archive, creator: creators[i] }));
   }
 

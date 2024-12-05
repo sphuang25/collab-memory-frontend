@@ -75,7 +75,7 @@ textarea::placeholder {
   height: auto;
   background-color: white;
   width: 75vw;
-  height: 12vh;
+  height: 10vh;
   position: relative;
   border-bottom: 1px solid #ececec;
   top: 60px;

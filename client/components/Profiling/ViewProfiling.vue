@@ -1,3 +1,39 @@
+<script setup lang="ts">
+import { onMounted, ref } from "vue";
+import { fetchy } from "../../utils/fetchy";
+
+interface Profile {
+  username: string;
+  selectedGoals: string[];
+}
+
+const profile = ref<Profile | null>(null);
+
+const fetchProfile = async () => {
+  try {
+    const response = await fetchy("/api/profiles/user", "GET");
+    const user = response.data;
+
+    // Fetch the user's goals
+    const goalsResponse = await fetchy(`/api/profiles`, "GET");
+
+    profile.value = {
+      username: user.username,
+      selectedGoals: goalsResponse.selectedChoices,
+    };
+  } catch (err) {
+    console.error("Error fetching profile:", err);
+    profile.value = null;
+  }
+};
+
+onMounted(async () => {
+  if (isLoggedIn) {
+    await fetchProfile();
+  }
+});
+</script>
+
 <template>
   <div class="view-profile-container">
     <h2>User Profile</h2>
@@ -18,40 +54,6 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { fetchy } from "../../utils/fetchy";
-
-interface Profile {
-  username: string;
-  selectedGoals: string[];
-}
-
-const profile = ref<Profile | null>(null);
-
-const fetchProfile = async () => {
-  try {
-    const response = await fetchy("/api/session", "GET");
-    const user = response.data;
-
-    // Fetch the user's goals
-    const goalsResponse = await fetchy(`/api/profile/${user.username}`, "GET");
-
-    profile.value = {
-      username: user.username,
-      selectedGoals: goalsResponse.selectedChoices,
-    };
-  } catch (err) {
-    console.error("Error fetching profile:", err);
-    profile.value = null;
-  }
-};
-
-onMounted(() => {
-  void fetchProfile();
-});
-</script>
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Montserrat:wght@400&display=swap");

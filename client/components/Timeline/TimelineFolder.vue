@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { format, formatDistanceToNow } from "date-fns";
-import { ref } from "vue";
 import router from "@/router";
-import { fetchy } from "../../utils/fetchy";
-import EditThreadForm from "@/components/Threading/EditThreadForm.vue";
 
-const props = defineProps(["thread"]);
-const emit = defineEmits(["refreshThreads"]);
+const props = defineProps(["archive"]);
+const emit = defineEmits(["refreshArchives"]);
 
 const formatDateDashed = (date: string) => {
   return format(new Date(date), "yyyy-MM-dd"); // Formats as 2024-11-16
@@ -26,7 +23,7 @@ const getRandomColor = () => {
 
 const randomColor = getRandomColor();
 
-const showMenu = ref(false);
+/*const showMenu = ref(false);
 const showEditForm = ref(false);
 
 const toggleThreadMenu = () => {
@@ -45,47 +42,27 @@ const deleteThreadCard = async () => {
   } catch (e) {
     return;
   }
-};
+};*/
 </script>
 
 <template>
-  <div class="card" :style="{ backgroundColor: randomColor }" @click="router.push(`/threads/${props.thread._id}`)">
+  <div class="card" :style="{ backgroundColor: randomColor }" @click="router.push(`/threads/${props.archive._id}`)">
     <div class="cardTitle">
       <div class="cardHeader">
-        <p class="threadTitle">{{ props.thread.title }}</p>
+        <p class="archiveCaption">{{ props.archive.caption }}</p>
         <div class="clickBox">
-          <i class="pi pi-ellipsis-h editMenu" style="font-size: 1.5rem" @click.stop="toggleThreadMenu"></i>
+          <i class="pi pi-ellipsis-h editMenu" style="font-size: 1.5rem"></i>
         </div>
       </div>
-      <p>{{ props.thread.content.length }} Discussions</p>
+      <p>{{ props.archive.content.length }} Memories</p>
     </div>
     <div class="base">
-      <!-- Menu Box -->
-      <div v-if="showMenu" class="menuBox">
-        <button @click.stop="toggleEditForm()">Edit</button>
-        <button @click.stop="deleteThreadCard()">Delete</button>
-      </div>
-      <!-- Edit Form Popup -->
-      <div v-if="showEditForm" class="editFormPopup" @click.stop>
-        <EditThreadForm
-          :thread="thread"
-          @close="
-            showEditForm = false;
-            showMenu = false;
-          "
-          @update="
-            showEditForm = false;
-            emit('refreshThreads');
-            showMenu = false;
-          "
-        />
-      </div>
       <article class="timestamp">
-        <p>{{ formatDateDashed(thread.dateCreated) }}</p>
-        <p v-if="props.thread.dateCreated !== props.thread.dateUpdated">Last Updated: {{ formatRelativeTime(thread.dateUpdated) }}</p>
-        <p v-else>Created on: {{ formatDateDashed(props.thread.dateCreated) }}</p>
+        <p>When: {{ formatDateDashed(archive.timePeriod) }}</p>
+        <p v-if="props.archive.dateCreated !== props.archive.dateUpdated">Last Updated: {{ formatRelativeTime(archive.dateUpdated) }}</p>
+        <p v-else>Created on: {{ formatDateDashed(props.archive.dateCreated) }}</p>
       </article>
-      <p class="author">by: {{ props.thread.creator }}</p>
+      <p class="author">by: {{ props.archive.creator }}</p>
     </div>
   </div>
 </template>
@@ -106,7 +83,7 @@ p {
   cursor: pointer;
 }
 
-.threadTitle {
+.archiveCaption {
   font-weight: bold;
   font-size: 1.5em;
   margin-bottom: 15px;

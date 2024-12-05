@@ -3,25 +3,25 @@ import { ref } from "vue";
 import { fetchy } from "../../utils/fetchy";
 
 const options = ["Learn family history", "Connect more often", "Learn others' interests", "Learn about identity"];
-const question = "What are your goals in Fam.ly?";
 const selectedGoals = ref<string[]>([]);
-const emit = defineEmits(["refreshProfile"]);
+const emit = defineEmits(["updated", "refreshProfile"]);
 
-const submitProfile = async (selectedChoices: Array<string>) => {
+const udpateProfile = async () => {
   if (selectedGoals.value.length === 0) {
     alert("Please select at least one goal.");
     return;
   }
 
   try {
-    await fetchy("/api/profiles", "POST", {
-      body: { question, selectedChoices },
+    const response = await fetchy("/api/profiles", "PATCH", {
+      body: { newChoices: selectedGoals.value },
     });
   } catch (e) {
     alert("There was an error submitting your profile. Please try again.");
   }
 
   emptyForm();
+  emit("updated");
   emit("refreshProfile");
 };
 
@@ -32,7 +32,7 @@ const emptyForm = () => {
 
 <template>
   <div class="profiling-form-container">
-    <form class="profiling-form" @submit.prevent="submitProfile(selectedGoals)">
+    <form class="profiling-form" @submit.prevent="udpateProfile">
       <h2>What are your goals in Fam.ly?</h2>
 
       <div class="form-group">
@@ -43,7 +43,7 @@ const emptyForm = () => {
         </div>
       </div>
 
-      <button class="submit-button" type="submit">Submit</button>
+      <button class="submit-button" type="submit">Update</button>
     </form>
   </div>
 </template>

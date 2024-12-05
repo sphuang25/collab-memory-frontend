@@ -15,8 +15,8 @@ import { z } from "zod";
  */
 class Routes {
   // Profiling question and options
-  private readonly profilingQuestion = "What are your goals in Fam.ly?";
-  private readonly profilingOptions = ["Learn family history", "Connect more often", "Learn others' interests", "Learn about identity"];
+  //public readonly profilingQuestion = "What are your goals in Fam.ly?";
+  //private readonly profilingOptions = ["Learn family history", "Connect more often", "Learn others' interests", "Learn about identity"];
 
   @Router.get("/session")
   async getSessionUser(session: SessionDoc) {
@@ -90,19 +90,16 @@ class Routes {
    * Profile Routes
    */
   @Router.post("/profiles")
-  async createProfile(session: SessionDoc, selectedChoices: string[]) {
+  async createProfile(session: SessionDoc, question: string, selectedChoices: string[]) {
     const user = Sessioning.getUser(session);
-    const question = this.profilingQuestion;
     const created = await Profiling.createProfile(user, question, selectedChoices);
     return { msg: created.msg, profile: await Responses.profile(created.profile) };
   }
 
   @Router.patch("/profiles")
-  async updateProfile(session: SessionDoc, id: string, newChoices: string[]) {
+  async updateProfile(session: SessionDoc, newChoices: string[]) {
     const user = Sessioning.getUser(session);
-    const oid = new ObjectId(id);
-    await Profiling.assertAuthorIsUser(oid, user);
-    const update = await Profiling.updateProfile(oid, newChoices);
+    const update = await Profiling.updateProfile(user, newChoices);
     return { msg: update.msg };
   }
 
@@ -111,6 +108,15 @@ class Routes {
     const user = Sessioning.getUser(session);
     const responses = await Profiling.getUserResponses(user);
     return responses;
+  }
+
+  @Router.get("/profiles/user")
+  async getUserProfile(session: SessionDoc) {
+    const user = Sessioning.getUser(session);
+    const profile = await Profiling.getUserProfile(user);
+    if (profile) {
+      return profile;
+    }
   }
 
   /*
@@ -217,7 +223,7 @@ class Routes {
     return { msg: thread.msg, thread: await Responses.thread(thread.thread) };
   }
 
-  @Router.delete("/threads")
+  @Router.delete("/threads/:id")
   async deleteThread(session: SessionDoc, id: string) {
     const user = Sessioning.getUser(session);
     const threadId = new ObjectId(id);
@@ -372,6 +378,13 @@ class Routes {
     const familyMemberIDs = familyMember.map((x) => x.userID);
     const familyMemberUsernames = await Authing.idsToUsernames(familyMemberIDs);
     return familyMemberUsernames;
+  }
+
+  @Router.get("/archives")
+  async getArchives(session: SessionDoc) {
+    const user = Sessioning.getUser(session);
+    const archives = await Archiving.getArchives(user);
+    return Responses.archives(archives);
   }
 
   @Router.post("/archives")
