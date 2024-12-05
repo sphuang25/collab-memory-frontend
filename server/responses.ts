@@ -49,13 +49,7 @@ export default class Responses {
       return thread;
     }
     const creator = await Authing.getUserById(thread.creator);
-    const members = await Promise.all(
-      thread.members.map(async (m) => {
-        const user = await Authing.getUserById(m);
-        return user?.username; // Handle the case where user might be null/undefined
-      }),
-    );
-    return { ...thread, creator: creator.username, members: members };
+    return { ...thread, creator: creator.username };
   }
 
   /**
@@ -63,8 +57,7 @@ export default class Responses {
    */
   static async threads(threads: ThreadDoc[]) {
     const creators = await Authing.idsToUsernames(threads.map((thread) => thread.creator));
-    const members = await Promise.all(threads.map((thread) => Authing.idsToUsernames(thread.members)));
-    return threads.map((thread, i) => ({ ...thread, creator: creators[i], members: members[i] }));
+    return threads.map((thread, i) => ({ ...thread, creator: creators[i] }));
   }
 
   static async archive(archive: ArchiveDoc | null) {

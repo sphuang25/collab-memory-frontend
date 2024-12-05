@@ -1,8 +1,12 @@
 <script setup lang="ts">
 const props = defineProps(["thread"]);
+import router from "@/router";
 import { format, formatDistanceToNow } from "date-fns";
 import { ref } from "vue";
-import router from "@/router";
+import { fetchy } from "../../utils/fetchy";
+import EditThreadForm from "./EditThreadForm.vue";
+
+const emit = defineEmits(["refreshThreads"]);
 
 const formatDateDashed = (date: string) => {
   return format(new Date(date), "yyyy-MM-dd"); // Formats as 2024-11-16
@@ -35,7 +39,7 @@ const toggleEditForm = () => {
 
 const deleteThreadCard = async () => {
   try {
-    await fetchy("/api/threads", "DELETE");
+    await fetchy(`/api/threads/${props.thread._id}`, "DELETE");
     showMenu.value = false; // Hide menu after deletion
     emit("refreshThreads");
   } catch (e) {
