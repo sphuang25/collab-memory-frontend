@@ -52,7 +52,7 @@ onBeforeMount(async () => {
       <h3 class="familyMainTitle">Invitations</h3>
       <div v-if="invites.length !== 0">
         <article v-for="invite in invites" :key="invite._id">
-          <FamilyReceivedInviteCard :invite="invite" @refreshInvites="getInvites" />
+          <FamilyReceivedInviteCard :invite="invite" @refreshFamilies="getFamilies" @refreshInvites="getInvites" />
         </article>
       </div>
       <p v-else>Cleared! There is no invitation.</p>
@@ -87,8 +87,7 @@ article {
   gap: 0.5em;
   width: calc(50% - 1em);
   box-sizing: border-box;
-  max-width: 40%;
-  min-height: 250px;
+  min-width: 100%;
   max-height: 250px;
 }
 
@@ -138,7 +137,8 @@ article {
 }
 
 div {
-  width: 70%;
+  width: 50%;
+  align-items: center;
 }
 
 .threads {
