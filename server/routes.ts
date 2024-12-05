@@ -265,7 +265,7 @@ class Routes {
     return { msg: request.msg };
   }
 
-  @Router.patch("/family/invite/accept")
+  @Router.patch("/family/invite/accept/:familyID")
   async acceptJoinFamilyInvite(session: SessionDoc, familyID: ObjectId) {
     const user = Sessioning.getUser(session);
     familyID = new ObjectId(familyID);
@@ -273,7 +273,7 @@ class Routes {
     return { msg: request.msg };
   }
 
-  @Router.patch("/family/invite/reject")
+  @Router.patch("/family/invite/reject/:familyID")
   async rejectJoinFamilyInvite(session: SessionDoc, familyID: ObjectId) {
     const user = Sessioning.getUser(session);
     familyID = new ObjectId(familyID);

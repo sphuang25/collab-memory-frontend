@@ -1,61 +1,74 @@
 <script setup lang="ts">
 import { useUserStore } from "@/stores/user";
+import { format } from "date-fns";
 import { storeToRefs } from "pinia";
-import { ref } from "vue";
+import { onBeforeMount, ref } from "vue";
+import { fetchy } from "../../utils/fetchy";
 const props = defineProps(["invite"]);
-const emit = defineEmits(["refreshInvites"]);
+const emit = defineEmits(["refreshInvites", "refreshFamilies"]);
 const { currentUsername } = storeToRefs(useUserStore());
 
 const fromUsername = ref("");
-const toUsername = ref("");
+const familyName = ref("");
 
-// const getFromUser = async () => {
-//   try {
-//     const user = await fetchy(`/api/users/user/${props.invite.fromID}`, "GET");
-//     fromUsername.value = user.username;
-//   } catch {
-//     return;
-//   }
-// };
+const formatDateDashed = (date: string) => {
+  return format(new Date(date), "yyyy-MM-dd"); // Formats as 2024-11-16
+};
 
-// const getToUser = async () => {
-//   try {
-//     const user = await fetchy(`/api/users/user/${props.invite.toID}`, "GET");
-//     toUsername.value = user.username;
-//   } catch {
-//     return;
-//   }
-// };
+const getFromUser = async () => {
+  try {
+    const user = await fetchy(`/api/users/user/${props.invite.fromID}`, "GET");
+    fromUsername.value = user.username;
+  } catch {
+    return;
+  }
+};
 
-// const removeFamilyInvite = async () => {
-//   try {
-//     await fetchy(`/api/family/${props.invite.familyID}/invite/${props.invite.toID}`, "DELETE");
-//   } catch {
-//     return;
-//   }
-//   emit("refreshInvites");
-// };
+const getFamilyTitle = async () => {
+  try {
+    familyName.value = await fetchy(`/api/family/name/${props.invite.familyID}`, "GET");
+  } catch {
+    return;
+  }
+};
 
-// onBeforeMount(async () => {
-//   await getFromUser();
-//   await getToUser();
-// });
+const acceptFamilyInvite = async () => {
+  try {
+    await fetchy(`/api/family/invite/accept/${props.invite.familyID}`, "PATCH");
+  } catch {
+    return;
+  }
+  emit("refreshFamilies");
+  emit("refreshInvites");
+};
+
+const rejectFamilyInvite = async () => {
+  try {
+    await fetchy(`/api/family/invite/reject/${props.invite.familyID}`, "PATCH");
+  } catch {
+    return;
+  }
+  emit("refreshInvites");
+};
+
+onBeforeMount(async () => {
+  await getFromUser();
+  await getFamilyTitle();
+});
 </script>
 
 <template>
-  <p>invite here</p>
-  <!-- <p class="sender">Inviting: {{ toUsername }}</p>
+  <p class="sender">{{ familyName }}</p>
   <div class="base">
     <article class="timestamp">
-      <p>invited by {{ fromUsername }}</p>
+      <p>Invitation From: {{ fromUsername }}</p>
     </article>
     <article class="timestamp">
-      <p>Request sent: {{ formatDate(props.invite.dateCreated) }}</p>
+      <p>Invited at: {{ formatDateDashed(props.invite.dateCreated) }}</p>
     </article>
-    <menu v-if="fromUsername == currentUsername">
-      <p><button class="button-error btn-small pure-button" @click="removeFamilyInvite">Delete</button></p>
-    </menu>
-  </div> -->
+    <p class="button"><button class="button-error btn-small pure-button" @click="rejectFamilyInvite">Reject</button></p>
+    <p class="button"><button class="btn-small pure-button" @click="acceptFamilyInvite">Accept</button></p>
+  </div>
 </template>
 
 <style scoped>
@@ -63,9 +76,14 @@ p {
   margin: 0em;
 }
 
+.button {
+  right: 100%;
+}
+
 .sender {
   font-weight: bold;
   font-size: 1.2em;
+  padding: 1em;
 }
 
 menu {

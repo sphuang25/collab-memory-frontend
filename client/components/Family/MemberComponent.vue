@@ -25,7 +25,7 @@ const getUser = async () => {
 
 const removeMember = async () => {
   try {
-    await fetchy(`/api/friends/${props.member.userID}`, "DELETE");
+    await fetchy(`/api/family/${props.member.userID}`, "DELETE");
   } catch {
     return;
   }
@@ -42,9 +42,6 @@ onBeforeMount(async () => {
   <p class="timestamp">Join since: {{ formatDateDashed(props.member.dateCreated) }}</p>
   <div class="base">
     <article class="timestamp"></article>
-    <menu>
-      <p><button class="btn-small pure-button" @click="removeMember">Remove</button></p>
-    </menu>
   </div>
 </template>
 
