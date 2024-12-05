@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Archiving, Authing, Familying, Posting, Sessioning, Threading } from "./app";
+import { Archiving, Authing, Familying, Posting, Profiling, Sessioning, Threading } from "./app";
 import { PostDoc, PostOptions } from "./concepts/posting";
 import { SessionDoc } from "./concepts/sessioning";
 import { ThreadDoc } from "./concepts/threading";
@@ -87,9 +87,32 @@ class Routes {
   }
 
   /**
-   * Profile Update: Update the profiling responses for a user.
+   * Profile Routes
    */
-  @Router.patch("/profile")
+  @Router.post("/profiles")
+  async createProfile(session: SessionDoc, selectedChoices: string[]) {
+    const user = Sessioning.getUser(session);
+    const question = this.profilingQuestion;
+    const created = await Profiling.createProfile(user, question, selectedChoices);
+    return { msg: created.msg, profile: await Responses.profile(created.profile) };
+  }
+
+  @Router.patch("/profiles")
+  async updateProfile(session: SessionDoc, id: string, newChoices: string[]) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(id);
+    await Profiling.assertAuthorIsUser(oid, user);
+    const update = await Profiling.updateProfile(oid, newChoices);
+    return { msg: update.msg };
+  }
+
+  @Router.get("/profiles")
+  async getProfileResponses(session: SessionDoc) {
+    const user = Sessioning.getUser(session);
+    const responses = await Profiling.getUserResponses(user);
+    return responses;
+  }
+
   /*
   @Router.validate(
     z.object({

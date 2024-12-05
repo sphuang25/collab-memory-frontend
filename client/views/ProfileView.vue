@@ -6,7 +6,7 @@ import { ref, onMounted } from "vue";
 import { fetchy } from "@/utils/fetchy";
 
 // Access user state from the store
-const { isLoggedIn, isProfileComplete, currentUsername } = storeToRefs(useUserStore());
+const { isLoggedIn, currentUsername } = storeToRefs(useUserStore());
 
 // State to store the selected profile goals
 const selectedGoals = ref<string[]>([]);
@@ -22,24 +22,34 @@ const fetchProfile = async () => {
   }
 };
 
+const choicesSelected = async () => {
+  try {
+    const choices = await fetchy("/api/profiles", "GET"); // Adjust endpoint if necessary
+    selectedGoals.value = choices;
+  } catch (_) {
+    return;
+  }
+};
+
 // Fetch profile data on component mount if logged in and profile is complete
 onMounted(() => {
-  if (isLoggedIn.value && isProfileComplete.value) {
+  if (isLoggedIn.value && selectedGoals.value !== 0) {
     void fetchProfile();
   }
+  await choicesSelected();
 });
 </script>
 
 <template>
   <main class="column">
     <!-- Show ProfilingComponent if the user is logged in but hasn't completed their profile -->
-    <section v-if="isLoggedIn && !isProfileComplete">
+    <section v-if="isLoggedIn && selectedGoals.value === 0">
       <h2>Hello {{ currentUsername }}! Let's set up your profile.</h2>
       <ProfilingComponent />
     </section>
 
     <!-- Show user's selected goals if the profile is complete -->
-    <section v-if="isLoggedIn && isProfileComplete">
+    <section v-if="isLoggedIn && selectedGoals.value !== 0">
       <h2>Your Fam.ly Profile</h2>
       <div v-if="selectedGoals.length > 0">
         <p><strong>Your Goals:</strong></p>

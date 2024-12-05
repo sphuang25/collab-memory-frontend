@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
-import { NotFoundError } from "./errors";
+import { NotAllowedError, NotFoundError } from "./errors";
 
 export interface ProfileDoc extends BaseDoc {
   user: ObjectId;
@@ -24,64 +24,56 @@ export default class ProfilingConcept {
    * @param question - The question being asked.
    * @param selectedChoices - The user's selected choices.
    */
-  async ask(user: ObjectId, question: string, selectedChoices: string[]) {
+  async createProfile(user: ObjectId, question: string, selectedChoices: string[]) {
     if (!question || selectedChoices.length === 0) {
       throw new Error("Question and selected choices must be provided.");
     }
-
-    const existingProfile = await this.profiles.readOne({ user, question });
-    if (existingProfile) {
-      await this.profiles.updateOne({ _id: existingProfile._id }, { selectedChoices });
-    } else {
-      await this.profiles.createOne({
-        user,
-        question,
-        selectedChoices,
-      });
-    }
-
-    return { msg: "Profile updated successfully!" };
+    const _id = await this.profiles.createOne({ user, question, selectedChoices });
+    return { msg: "Profile successfully created!", profile: await this.profiles.readOne({ _id }) };
   }
 
   /**
    * Update the user's profiling data for a specific question.
    * @param user - The ID of the user.
-   * @param question - The question to update responses for.
    * @param selectedChoices - The updated responses for the question.
    */
-  async updateProfile(user: ObjectId, question: string, selectedChoices: string[]) {
-    return this.ask(user, question, selectedChoices); // Reuse the ask method to perform the update.
+  async updateProfile(_id: ObjectId, selectedChoices: string[]) {
+    await this.profiles.partialUpdateOne({ _id }, { selectedChoices }); // Reuse the ask method to perform the update.
+    return { msg: "Profile successfully updated!" };
   }
 
   /**
    * Retrieve a user's response to a specific question.
    * @param user - The ID of the user.
-   * @param question - The question to retrieve responses for.
    * @returns The user's selected choices for the question.
    */
-  async getUserResponses(user: ObjectId, question: string) {
-    const profile = await this.profiles.readOne({ user, question });
+  async getUserResponses(user: ObjectId) {
+    const profile = await this.profiles.readOne({ user });
     if (!profile) {
-      throw new ProfileNotFoundError(user, question);
+      throw new ProfileNotFoundError(user);
     }
     return profile.selectedChoices;
   }
 
-  /**
-   * Retrieve all responses for a user.
-   * @param user - The ID of the user.
-   * @returns An array of all questions and their corresponding responses for the user.
-   */
-  async getAllResponses(user: ObjectId) {
-    return await this.profiles.readMany({ user });
+  async assertAuthorIsUser(_id: ObjectId, user: ObjectId) {
+    const profile = await this.profiles.readOne({ _id });
+    if (profile != null && profile.user.toString() !== user.toString()) {
+      throw new ProfileUserNotMatchError();
+    }
   }
 }
 
 /**
  * Error for when a profile entry is not found.
  */
-class ProfileNotFoundError extends NotFoundError {
-  constructor(user: ObjectId, question: string) {
-    super(`Profile entry for user ${user} and question "${question}" not found!`);
+export class ProfileNotFoundError extends NotFoundError {
+  constructor(user: ObjectId) {
+    super(`Profile entry for user ${user} not found!`);
+  }
+}
+
+export class ProfileUserNotMatchError extends NotAllowedError {
+  constructor() {
+    super(`You cannot update profile as you are not the profile owner!`);
   }
 }

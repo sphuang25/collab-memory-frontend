@@ -34,7 +34,7 @@ onBeforeMount(async () => {
     <section class="threads" v-if="loaded">
       <ThreadCreateForm @refreshThreads="getThreads" />
       <article v-for="thread in threads" :key="thread._id">
-        <ThreadCard :thread="thread" />
+        <ThreadCard :thread="thread" @refreshThreads="getThreads" />
       </article>
     </section>
     <p v-if="loaded && threads.length == 0" class="threadMainTitle">No threads found</p>

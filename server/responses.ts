@@ -2,6 +2,7 @@ import { Authing } from "./app";
 import { ArchiveDoc } from "./concepts/archiving";
 import { AlreadyFriendsError, FriendNotFoundError, FriendRequestAlreadyExistsError, FriendRequestDoc, FriendRequestNotFoundError } from "./concepts/friending";
 import { PostAuthorNotMatchError, PostDoc } from "./concepts/posting";
+import { ProfileDoc } from "./concepts/profiling";
 import { ThreadDoc } from "./concepts/threading";
 import { Router } from "./framework/router";
 
@@ -80,6 +81,22 @@ export default class Responses {
   static async archives(archives: ArchiveDoc[]) {
     const creators = await Authing.idsToUsernames(archives.map((a) => a.creator));
     return archives.map((archive, i) => ({ ...archive, creator: creators[i] }));
+  }
+
+  static async profile(profile: ProfileDoc | null) {
+    if (!profile) {
+      return profile;
+    }
+    const creator = await Authing.getUserById(profile.user);
+    return { ...profile, creator: creator.username };
+  }
+
+  /**
+   * Same as {@link profile} but for an array of ArchiveDoc for improved performance.
+   */
+  static async profiles(profiles: ProfileDoc[]) {
+    const creators = await Authing.idsToUsernames(profiles.map((a) => a.user));
+    return profiles.map((profile, i) => ({ ...profile, user: creators[i] }));
   }
 }
 
