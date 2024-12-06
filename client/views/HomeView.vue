@@ -4,6 +4,7 @@ import { storeToRefs } from "pinia";
 // Import CreateProfile component
 import FamilyListComponent from "@/components/Family/FamilyListComponent.vue";
 import { onMounted } from "vue";
+import HomeViewLoggedOut from "./HomeViewLoggedOut.vue";
 
 const userStore = useUserStore();
 const { isLoggedIn } = storeToRefs(userStore);
@@ -25,7 +26,7 @@ onMounted(() => {
     <section v-else class="welcome-section">
       <div class="overlay">
         <h1>Welcome to <span class="fancy-font">Fam.ly</span>!</h1>
-        <p class="description">Strengthen your connections with discovering more about your family.</p>
+        <HomeViewLoggedOut />
       </div>
     </section>
 
