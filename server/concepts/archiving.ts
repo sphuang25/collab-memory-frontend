@@ -23,6 +23,20 @@ export default class UserProfilingConcept {
     return await this.archives.readMany({ creator: user }, { sort: { timePeriod: -1 } });
   }
 
+  async getArchive(id: ObjectId) {
+    return await this.archives.readOne({ id });
+  }
+
+  async getArchiveContent(user: ObjectId, _id: ObjectId) {
+    const archive = await this.archives.readOne({ _id });
+    if (!archive) {
+      throw new ArchiveNotExistError(_id);
+    } else if (archive.creator.toString() !== _id.toString()) {
+      throw new NotCreatorOfArchiveError(user, _id);
+    }
+    return archive.content;
+  }
+
   async createArchive(creator: ObjectId, posts: ObjectId[], timePeriod: Date, caption: string) {
     const _id = await this.archives.createOne({ creator: creator, content: posts, timePeriod: timePeriod, caption: caption });
     return { msg: "Archive successfully created!", archive: await this.archives.readOne({ _id }) };
@@ -92,7 +106,7 @@ export class ArchiveNotExistError extends BadValuesError {
 
 export class NotCreatorOfArchiveError extends NotAllowedError {
   constructor(editBy: ObjectId, archive: ObjectId) {
-    super(`You can not edit archive ${archive} because user ${editBy} is not the creator.`);
+    super(`You cannot access archive ${archive} because user ${editBy} is not the creator.`);
   }
 }
 

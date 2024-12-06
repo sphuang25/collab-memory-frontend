@@ -365,6 +365,20 @@ class Routes {
     return Responses.archives(archives);
   }
 
+  @Router.get("/archives/content/:id")
+  async getArchiveContent(session: SessionDoc, id: string) {
+    const user = Sessioning.getUser(session);
+    const oid = new ObjectId(id);
+    return await Archiving.getArchiveContent(user, oid);
+  }
+
+  @Router.get("/archives/:id")
+  async getArchiveById(id: string) {
+    const oid = new ObjectId(id);
+    const archive = await Archiving.getArchive(oid);
+    return Responses.archive(archive);
+  }
+
   @Router.post("/archives")
   async createArchive(session: SessionDoc, posts: Array<string>, timePeriod: string, caption: string) {
     const user = Sessioning.getUser(session);

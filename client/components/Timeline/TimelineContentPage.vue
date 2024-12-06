@@ -11,25 +11,27 @@ import "primeicons/primeicons.css";
 const currentRoute = useRoute();
 const currentRouteName = computed(() => currentRoute.name);
 const route = useRoute();
-const threadId = String(route.params.id);
-const thread = ref();
+const archiveId = String(route.params.id);
+const archive = ref();
 const posts = ref();
 const loaded = ref(false);
 const content = ref("");
-async function getThread(id: string) {
-  let threadResult;
+
+async function getArchive(id: string) {
+  let archiveResult;
   try {
-    threadResult = await fetchy(`/api/thread/${id}`, "GET");
+    archiveResult = await fetchy(`/api/archives/${id}`, "GET");
   } catch (e) {
+    console.log(e);
     return;
   }
-  thread.value = threadResult;
+  archive.value = archiveResult;
 }
 
 async function getArchiveContent(id: string) {
   let contentResult;
   try {
-    contentResult = await fetchy(`/api/threads/${id}`, "GET");
+    contentResult = await fetchy(`/api/archives/content/${id}`, "GET");
   } catch (e) {
     return;
   }
@@ -53,42 +55,42 @@ const formatRelativeTime = (date: string) => {
 };
 
 onBeforeMount(async () => {
-  await getThread(threadId);
-  await getThreadContent(threadId);
+  await getArchive(archiveId);
+  await getArchiveContent(archiveId);
   loaded.value = true;
 });
 </script>
 
-<!---<template>
-<div v-if="isLoggedIn && loaded" class="folderBody">
-    <div id="trapezoid"><h3 class="threadSideTitle" v-if="!memoryToggle">Archives</h3></div>
-    <div class="threadHeader">
-      <div class="threadTitleDate">
+<template>
+  <div v-if="isLoggedIn && loaded" class="folderBody">
+    <div id="trapezoid"><h3 class="archiveSideTitle" v-if="!memoryToggle">Archives</h3></div>
+    <div class="archiveHeader">
+      <div class="archiveTitleDate">
         <div class="titleBackArrow">
-          <RouterLink :to="{ name: 'Threads' }" class="oval" :class="{ clicked: currentRouteName === 'Threads' || currentRouteName === 'Thread Content' }"
+          <RouterLink :to="{ name: 'Timeline' }" class="oval" :class="{ clicked: currentRouteName === 'Timeline' || currentRouteName === 'Timeline Content' }"
             ><i class="pi pi-chevron-left backArrow" style="font-size: 2rem"></i
           ></RouterLink>
-          <p class="threadTitle">{{ thread.title }}</p>
+          <p class="archiveTitle">{{ archive.caption }}</p>
         </div>
         <article class="timestamp">
-          <p>by: {{ thread.creator }}</p>
-          <p>{{ formatDateDashed(thread.dateCreated) }}</p>
-          <p v-if="thread.dateCreated !== thread.dateUpdated">Last Updated: {{ formatRelativeTime(thread.dateUpdated) }}</p>
-          <p v-else>Created on: {{ formatDateDashed(thread.dateCreated) }}</p>
+          <p>by: {{ archive.creator }}</p>
+          <p>{{ formatDateDashed(archive.dateCreated) }}</p>
+          <p v-if="archive.dateCreated !== archive.dateUpdated">Last Updated: {{ formatRelativeTime(archive.dateUpdated) }}</p>
+          <p v-else>Created on: {{ formatDateDashed(archive.dateCreated) }}</p>
         </article>
       </div>
     </div>
     <div class="posts">
       <div class="postGrid" v-if="loaded && posts.length !== 0">
         <article v-for="post in posts" :key="post._id">
-          <PostComponent :post="post" @refreshPosts="getThreadContent" v-if="!memoryToggle" />
-          <PostComponent class="addMode" :post="post" @refreshPosts="getThreadContent" @click="togglePostSelection(post._id)" v-else :class="{ 'selected-post': selectedPosts.includes(post._id) }" />
+          <PostComponent :post="post" @refreshPosts="getArchiveContent" v-if="!memoryToggle" />
         </article>
       </div>
     </div>
-  <p v-else-if="loaded" class="threadMainTitle">No threads found</p>
-  <p v-else class="threadMainTitle">Loading...</p>
-</template>-->
+  </div>
+  <p v-else-if="loaded">No posts found</p>
+  <p v-else>Loading...</p>
+</template>
 
 <style scoped>
 .selected-post {
@@ -100,17 +102,11 @@ onBeforeMount(async () => {
 .addMode:hover {
   transform: scale(1.1);
 }
-.threadSideTitle {
+.archiveSideTitle {
   color: #3f3f44;
   text-align: center;
 }
 
-.threadMainTitle {
-  color: #3f3f44;
-  text-align: center;
-  font-size: 30px;
-  margin-top: 100px;
-}
 .folderBody {
   background-color: white;
   width: 100%;
@@ -121,7 +117,7 @@ onBeforeMount(async () => {
   margin-top: 10vh;
 }
 
-.threadTitle {
+.archiveTitle {
   font-size: 30px;
   font-weight: lighter;
 }
@@ -192,7 +188,7 @@ button {
   cursor: pointer;
 }
 
-.threadTitleDate {
+.archiveTitleDate {
   width: 80%;
   padding: 20px;
   display: flex;
@@ -215,7 +211,7 @@ button {
   margin-left: 40px;
 }
 
-.threadHeader {
+.archiveHeader {
   display: flex;
   flex-direction: column;
   align-items: center;
