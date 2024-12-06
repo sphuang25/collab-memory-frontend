@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { format, formatDistanceToNow } from "date-fns";
 import router from "@/router";
+import EditTimelineForm from "@/components/Timeline/EditTimelineForm.vue";
+import { ref } from "vue";
+import { fetchy } from "../../utils/fetchy";
 
 const props = defineProps(["archive"]);
 const emit = defineEmits(["refreshArchives"]);
@@ -23,10 +26,10 @@ const getRandomColor = () => {
 
 const randomColor = getRandomColor();
 
-/*const showMenu = ref(false);
+const showMenu = ref(false);
 const showEditForm = ref(false);
 
-const toggleThreadMenu = () => {
+const toggleArchiveMenu = () => {
   showMenu.value = !showMenu.value; // Toggle menu visibility
 };
 
@@ -34,29 +37,49 @@ const toggleEditForm = () => {
   showEditForm.value = !showEditForm.value;
 };
 
-const deleteThreadCard = async () => {
+const deleteTimelineCard = async () => {
   try {
-    await fetchy(`/api/threads/${props.thread._id}`, "DELETE");
+    await fetchy(`/api/archives/${props.archive._id}`, "DELETE");
     showMenu.value = false; // Hide menu after deletion
-    emit("refreshThreads");
+    emit("refreshArchives");
   } catch (e) {
     return;
   }
-};*/
+};
 </script>
 
 <template>
-  <div class="card" :style="{ backgroundColor: randomColor }" @click="router.push(`/threads/${props.archive._id}`)">
+  <div class="card" :style="{ backgroundColor: randomColor }" @click="router.push(`/archives/${props.archive._id}`)">
     <div class="cardTitle">
       <div class="cardHeader">
         <p class="archiveCaption">{{ props.archive.caption }}</p>
         <div class="clickBox">
-          <i class="pi pi-ellipsis-h editMenu" style="font-size: 1.5rem"></i>
+          <i class="pi pi-ellipsis-h editMenu" style="font-size: 1.5rem" @click.stop="toggleArchiveMenu"></i>
         </div>
       </div>
       <p>{{ props.archive.content.length }} Memories</p>
     </div>
     <div class="base">
+      <!-- Menu Box -->
+      <div v-if="showMenu" class="menuBox">
+        <button @click.stop="toggleEditForm()">Edit</button>
+        <button @click.stop="deleteTimelineCard()">Delete</button>
+      </div>
+      <!-- Edit Form Popup -->
+      <div v-if="showEditForm" class="editFormPopup" @click.stop>
+        <EditTimelineForm
+          :archive="archive"
+          @close="
+            showEditForm = false;
+            showMenu = false;
+          "
+          @update="
+            showEditForm = false;
+            emit('refreshArchives');
+            showMenu = false;
+          "
+        />
+      </div>
       <article class="timestamp">
         <p>When: {{ formatDateDashed(archive.timePeriod) }}</p>
         <p v-if="props.archive.dateCreated !== props.archive.dateUpdated">Last Updated: {{ formatRelativeTime(archive.dateUpdated) }}</p>
@@ -101,7 +124,7 @@ p {
   padding: 5px;
 }
 
-.card:hover .cardContent {
+.card:hover {
   filter: brightness(90%);
   cursor: pointer;
 }

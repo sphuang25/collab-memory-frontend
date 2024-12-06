@@ -36,7 +36,7 @@ export default class UserProfilingConcept {
       throw new NotCreatorOfArchiveError(editor, archiveItem);
     } else {
       const archive = await this.archives.partialUpdateOne({ _id: archiveItem }, { caption: newCaption });
-      return { msg: "Archive caption successfully updated!", archive: await this.archives.readOne({ archive }) };
+      return { msg: "Archive caption successfully updated!", archive: archive };
     }
   }
 

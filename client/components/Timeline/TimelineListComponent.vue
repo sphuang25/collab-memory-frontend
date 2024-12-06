@@ -14,7 +14,6 @@ async function getArchives() {
   let archiveResults;
   try {
     archiveResults = await fetchy("/api/archives", "GET");
-    console.log(archiveResults);
   } catch (_) {
     return;
   }

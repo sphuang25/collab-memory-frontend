@@ -378,17 +378,17 @@ class Routes {
     return { msg: created.msg, post: await Responses.archive(created.archive) };
   }
 
-  @Router.patch("/archives")
-  async updateArchiveCaption(session: SessionDoc, archiveItem: string, newCaption: string) {
+  @Router.patch("/archives/:id")
+  async updateArchiveCaption(session: SessionDoc, id: string, newCaption: string) {
     const user = Sessioning.getUser(session);
-    const item = new ObjectId(archiveItem);
+    const item = new ObjectId(id);
     return await Archiving.updateCaption(user, item, newCaption);
   }
 
-  @Router.delete("/archives")
-  async deleteArchive(session: SessionDoc, archiveItem: string) {
+  @Router.delete("/archives/:id")
+  async deleteArchive(session: SessionDoc, id: string) {
     const user = Sessioning.getUser(session);
-    const item = new ObjectId(archiveItem);
+    const item = new ObjectId(id);
     return await Archiving.deleteArchive(user, item);
   }
 
