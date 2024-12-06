@@ -30,13 +30,13 @@ export default class UserProfilingConcept {
 
   async updateCaption(editor: ObjectId, archiveItem: ObjectId, newCaption: string) {
     const archive = await this.archives.readOne({ _id: archiveItem });
-    if (archive == null) {
+    if (archive === null) {
       throw new ArchiveNotExistError(archiveItem);
     } else if (archive?.creator.toString() !== editor.toString()) {
       throw new NotCreatorOfArchiveError(editor, archiveItem);
     } else {
       const archive = await this.archives.partialUpdateOne({ _id: archiveItem }, { caption: newCaption });
-      return { msg: "Archive caption successfully updated!", archive: archive };
+      return { msg: `Archive caption successfully updated with ${newCaption}!`, archive: archive };
     }
   }
 

@@ -9,7 +9,7 @@ const updatedCaption = ref(props.archive.caption);
 const submitEdit = async () => {
   let edit;
   try {
-    edit = await fetchy(`/api/archives/${props.archive._id}`, "PATCH", { body: { caption: updatedCaption.value } });
+    edit = await fetchy(`/api/archives/${props.archive._id}`, "PATCH", { body: { newCaption: updatedCaption.value } });
   } catch (e) {
     return;
   }
