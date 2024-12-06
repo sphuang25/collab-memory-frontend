@@ -1,8 +1,8 @@
 <script setup lang="ts">
 const props = defineProps(["post"]);
+import EditPostForm from "@/components/Post/EditPostForm.vue";
 import { format } from "date-fns";
 import { ref } from "vue";
-import EditPostForm from "@/components/Post/EditPostForm.vue";
 import { fetchy } from "../../utils/fetchy";
 
 const showMenu = ref(false);
