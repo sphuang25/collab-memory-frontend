@@ -7,6 +7,7 @@ import { format, formatDistanceToNow } from "date-fns";
 const { isLoggedIn } = storeToRefs(useUserStore());
 import { useRoute } from "vue-router";
 import "primeicons/primeicons.css";
+import PostComponent from "@/components/Post/PostComponent.vue";
 //npm install primeicons
 const currentRoute = useRoute();
 const currentRouteName = computed(() => currentRoute.name);
