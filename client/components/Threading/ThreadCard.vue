@@ -125,7 +125,7 @@ p {
   padding: 5px;
 }
 
-.card:hover .cardContent {
+.card:hover {
   filter: brightness(90%);
   cursor: pointer;
 }
