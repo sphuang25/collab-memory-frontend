@@ -78,6 +78,12 @@ export default class FamilyingConcept {
     return families;
   }
 
+  async getFamilyIDs(userID: ObjectId) {
+    const families = await this.members.readMany({ userID: userID });
+    const familyIDs = families.map((x) => x.familyID);
+    return familyIDs;
+  }
+
   async getInvites(userID: ObjectId) {
     return await this.invites.readMany({ toID: userID, status: "pending" });
   }

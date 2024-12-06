@@ -187,9 +187,17 @@ class Routes {
 
   //Threading Routes
   @Router.get("/threads/:familyID")
-  async getThreads(session: SessionDoc, familyID: ObjectId) {
+  async getThreadsInFamily(session: SessionDoc, familyID: ObjectId) {
     familyID = new ObjectId(familyID);
     const threads = await Threading.getThreads(familyID);
+    return Responses.threads(threads);
+  }
+
+  @Router.get("/threads")
+  async getThreadsUser(session: SessionDoc) {
+    const user = Sessioning.getUser(session);
+    const familyIDs = await Familying.getFamilyIDs(user);
+    const threads = await Threading.getThreadsMultipleFamilies(familyIDs);
     return Responses.threads(threads);
   }
 
@@ -212,7 +220,7 @@ class Routes {
   @Router.delete("/threads/:id")
   async deleteThread(session: SessionDoc, id: string) {
     const user = Sessioning.getUser(session);
-    const threadId = new ObjectId(threadID);
+    const threadId = new ObjectId(id);
     const threadContent = await Threading.getThreadContent(threadId);
     await Threading.assertCreatorIsUser(threadId, user);
     for (const p of threadContent.content) {
