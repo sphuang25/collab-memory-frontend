@@ -414,10 +414,10 @@ class Routes {
     return await Archiving.addToArchive(user, archiveId, postId);
   }
 
-  @Router.patch("/delarchives/:id")
-  async deleteFromArchive(session: SessionDoc, archive: string, post: string) {
+  @Router.patch("/archives/:id/:post")
+  async deleteFromArchive(session: SessionDoc, id: string, post: string) {
     const user = Sessioning.getUser(session);
-    const archiveId = new ObjectId(archive);
+    const archiveId = new ObjectId(id);
     const postId = new ObjectId(post);
     return await Archiving.deleteFromArchive(user, archiveId, postId);
   }
