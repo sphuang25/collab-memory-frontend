@@ -19,7 +19,7 @@ const deletePostFromArchive = async () => {
   try {
     await fetchy(`/api/archives/${props.archive._id}/post/${props.post._id}`, "DELETE");
     showMenu.value = false; // Hide menu after deletion
-    emit("refreshPosts", props.post.thread);
+    emit("refreshPosts");
   } catch (e) {
     return;
   }

@@ -87,11 +87,12 @@ export default class UserProfilingConcept {
     } else if (archive?.creator.toString() !== editor.toString()) {
       throw new NotCreatorOfArchiveError(editor, archiveItem);
     } else {
-      if (!archive.content.includes(post)) {
+      if (!archive.content.map((x) => x.toString()).includes(post.toString())) {
         throw new PostNotInArchiveError(post, archiveItem);
       } else {
-        const idx = archive.content.indexOf(post);
+        const idx = archive.content.map((x) => x.toString()).indexOf(post.toString());
         archive.content.splice(idx, 1);
+        await this.archives.partialUpdateOne({ _id: archiveItem }, { content: archive.content });
       }
       return archive;
     }

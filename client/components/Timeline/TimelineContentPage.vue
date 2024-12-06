@@ -6,7 +6,7 @@ import { storeToRefs } from "pinia";
 import "primeicons/primeicons.css";
 import { computed, onBeforeMount, ref } from "vue";
 import { useRoute } from "vue-router";
-import PostComponent from "../Post/PostComponent.vue";
+import ArchivePostComponent from "./ArchivePostComponent.vue";
 const { isLoggedIn } = storeToRefs(useUserStore());
 //npm install primeicons
 const currentRoute = useRoute();
@@ -82,7 +82,7 @@ onBeforeMount(async () => {
     <div class="posts">
       <div class="postGrid" v-if="loaded && posts.length !== 0">
         <article v-for="post in posts" :key="post._id">
-          <PostComponent :post="post" @refreshPosts="getArchiveContent" />
+          <ArchivePostComponent :post="post" :archive="archive" @refreshPosts="getArchiveContent(archiveId)" />
         </article>
       </div>
     </div>
