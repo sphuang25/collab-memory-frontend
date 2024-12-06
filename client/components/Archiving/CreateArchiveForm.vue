@@ -75,11 +75,11 @@ textarea::placeholder {
   height: auto;
   background-color: white;
   width: 75vw;
-  height: 10vh;
+  height: 12vh;
   position: relative;
   border-bottom: 1px solid #ececec;
   top: 60px;
-  right: 210px;
+  right: 300px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
