@@ -212,7 +212,7 @@ class Routes {
   @Router.delete("/threads/:id")
   async deleteThread(session: SessionDoc, id: string) {
     const user = Sessioning.getUser(session);
-    const threadId = new ObjectId(threadID);
+    const threadId = new ObjectId(id);
     const threadContent = await Threading.getThreadContent(threadId);
     await Threading.assertCreatorIsUser(threadId, user);
     for (const p of threadContent.content) {

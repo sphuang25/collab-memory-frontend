@@ -4,7 +4,6 @@ import { storeToRefs } from "pinia";
 import { computed, onBeforeMount, ref } from "vue";
 import { fetchy } from "@/utils/fetchy";
 import { format, formatDistanceToNow } from "date-fns";
-import PostComponent from "@/components/Post/PostComponent.vue";
 const { isLoggedIn } = storeToRefs(useUserStore());
 import { useRoute } from "vue-router";
 import "primeicons/primeicons.css";
@@ -60,8 +59,8 @@ onBeforeMount(async () => {
 });
 </script>
 
-<template>
-  <div v-if="isLoggedIn && loaded" class="folderBody">
+<!---<template>
+<div v-if="isLoggedIn && loaded" class="folderBody">
     <div id="trapezoid"><h3 class="threadSideTitle" v-if="!memoryToggle">Archives</h3></div>
     <div class="threadHeader">
       <div class="threadTitleDate">
@@ -89,7 +88,7 @@ onBeforeMount(async () => {
     </div>
   <p v-else-if="loaded" class="threadMainTitle">No threads found</p>
   <p v-else class="threadMainTitle">Loading...</p>
-</template>
+</template>-->
 
 <style scoped>
 .selected-post {
