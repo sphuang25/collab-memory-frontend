@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { format, formatDistanceToNow } from "date-fns";
-import { ref } from "vue";
-import router from "@/router";
-import { fetchy } from "../../utils/fetchy";
 import EditThreadForm from "@/components/Threading/EditThreadForm.vue";
+import router from "@/router";
+import { format, formatDistanceToNow } from "date-fns";
+import { onBeforeMount, ref } from "vue";
+import { fetchy } from "../../utils/fetchy";
+
+const familyname = ref("");
 
 const props = defineProps(["thread"]);
 const emit = defineEmits(["refreshThreads"]);
@@ -37,6 +39,14 @@ const toggleEditForm = () => {
   showEditForm.value = !showEditForm.value;
 };
 
+const getFamilyName = async () => {
+  try {
+    familyname.value = await fetchy(`/api/family/name/${props.thread.familyID}`, "GET");
+  } catch (e) {
+    return;
+  }
+};
+
 const deleteThreadCard = async () => {
   try {
     await fetchy(`/api/threads/${props.thread._id}`, "DELETE");
@@ -46,6 +56,10 @@ const deleteThreadCard = async () => {
     return;
   }
 };
+
+onBeforeMount(async () => {
+  await getFamilyName();
+});
 </script>
 
 <template>
@@ -57,6 +71,7 @@ const deleteThreadCard = async () => {
           <i class="pi pi-ellipsis-h editMenu" style="font-size: 1.5rem" @click.stop="toggleThreadMenu"></i>
         </div>
       </div>
+      <p class="bold">{{ familyname }}</p>
       <p>{{ props.thread.content.length }} Discussions</p>
     </div>
     <div class="base">
@@ -96,6 +111,12 @@ p {
   color: #3f3f44;
   margin-bottom: 10px;
 }
+
+.bold {
+  font-weight: bold;
+  font-style: italic;
+}
+
 .timestamp p {
   font-size: 1em;
 }
