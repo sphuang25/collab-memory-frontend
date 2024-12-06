@@ -40,7 +40,9 @@ onBeforeMount(async () => {
             <RouterLink :to="{ name: 'Threads' }" class="oval" :class="{ clicked: currentRouteName === 'Threads' || currentRouteName === 'Thread Content' }">Threads</RouterLink>
           </li>
           <li v-if="isLoggedIn">
-            <RouterLink v-if="isLoggedIn" :to="{ name: 'Timeline' }" class="oval" :class="{ clicked: currentRouteName === 'Timeline' }">Timeline</RouterLink>
+            <RouterLink v-if="isLoggedIn" :to="{ name: 'Timeline' }" class="oval" :class="{ clicked: currentRouteName === 'Timeline' || currentRouteName === ' Timeline Content' }"
+              >Timeline</RouterLink
+            >
           </li>
           <div class="bottom">
             <li>

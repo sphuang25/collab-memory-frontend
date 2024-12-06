@@ -51,6 +51,7 @@ const deleteTimelineCard = async () => {
 <template>
   <div class="card" :style="{ backgroundColor: randomColor }" @click="router.push(`/archives/${props.archive._id}`)">
     <div class="cardTitle">
+      <div id="trapezoid"></div>
       <div class="cardHeader">
         <p class="archiveCaption">{{ props.archive.caption }}</p>
         <div class="clickBox">
@@ -96,6 +97,7 @@ p {
   color: #3f3f44;
   margin-bottom: 10px;
 }
+
 .timestamp p {
   font-size: 1em;
 }

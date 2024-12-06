@@ -10,6 +10,7 @@ import ProfileView from "../views/ProfileView.vue";
 import SettingView from "../views/SettingView.vue";
 import ThreadContentView from "../views/ThreadContentView.vue";
 import ThreadHomeView from "../views/ThreadHomeView.vue";
+import TimelineContentView from "../views/TimelineContentView.vue";
 import TimelineView from "../views/TimelineView.vue";
 
 const router = createRouter({
@@ -48,6 +49,12 @@ const router = createRouter({
       path: "/timeline",
       name: "Timeline",
       component: TimelineView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/archives/:id",
+      name: "Timeline Content",
+      component: TimelineContentView,
       meta: { requiresAuth: true },
     },
     {
