@@ -114,7 +114,7 @@ onBeforeMount(async () => {
       <div class="threadTitleDate">
         <div class="titleBackArrow">
           <i class="pi pi-building-columns" @mouseover="showTextHome = true" @mouseleave="showTextHome = false" style="font-size: 2rem" v-on:click="router.push(`/family/${thread.familyID}`)"></i>
-          <article v-if="showTextHome" class="text-box hint">Back To Family</article>
+          <article v-if="showTextHome" class="text-box hint">More in This Family</article>
           <i class="pi pi-book" @mouseover="showTextThread = true" @mouseleave="showTextThread = false" style="font-size: 2rem" v-on:click="router.push(`/threads`)"></i>
           <article v-if="showTextThread" class="text-box hint">See All Threads</article>
           <p class="threadTitle">{{ thread.title }}</p>

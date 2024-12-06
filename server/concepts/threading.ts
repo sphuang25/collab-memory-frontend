@@ -29,6 +29,11 @@ export default class ThreadingConcept {
     return await this.threads.readMany({ familyID: familyID }, { sort: { dateCreated: -1 } });
   }
 
+  async getThreadsMultipleFamilies(familyIDs: ObjectId[]) {
+    // Returns all threads from newest to oldest
+    return await this.threads.readMany({ familyID: { $in: familyIDs } }, { sort: { dateUpdated: -1 } });
+  }
+
   //get thread with given id
   async getThread(_id: ObjectId) {
     return await this.threads.readOne({ _id });
