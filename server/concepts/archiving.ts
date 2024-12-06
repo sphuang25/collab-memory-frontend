@@ -24,15 +24,15 @@ export default class UserProfilingConcept {
   }
 
   async getArchive(id: ObjectId) {
-    return await this.archives.readOne({ id });
+    return await this.archives.readOne({ _id: id });
   }
 
   async getArchiveContent(user: ObjectId, _id: ObjectId) {
-    const archive = await this.archives.readOne({ _id });
+    const archive = await this.archives.readOne({ _id: _id });
     if (!archive) {
       throw new ArchiveNotExistError(_id);
-    } else if (archive.creator.toString() !== _id.toString()) {
-      throw new NotCreatorOfArchiveError(user, _id);
+    } else if (archive.creator.toString() !== user.toString()) {
+      throw new NotCreatorOfArchiveError(user, archive.creator);
     }
     return archive.content;
   }

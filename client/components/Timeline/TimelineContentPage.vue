@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useUserStore } from "@/stores/user";
-import { storeToRefs } from "pinia";
-import { computed, onBeforeMount, ref } from "vue";
 import { fetchy } from "@/utils/fetchy";
 import { format, formatDistanceToNow } from "date-fns";
-const { isLoggedIn } = storeToRefs(useUserStore());
-import { useRoute } from "vue-router";
+import { storeToRefs } from "pinia";
 import "primeicons/primeicons.css";
-import PostComponent from "@/components/Post/PostComponent.vue";
+import { computed, onBeforeMount, ref } from "vue";
+import { useRoute } from "vue-router";
+import PostComponent from "../Post/PostComponent.vue";
+const { isLoggedIn } = storeToRefs(useUserStore());
 //npm install primeicons
 const currentRoute = useRoute();
 const currentRouteName = computed(() => currentRoute.name);
@@ -17,16 +17,14 @@ const archive = ref();
 const posts = ref();
 const loaded = ref(false);
 const content = ref("");
+const memoryToggle = ref(false);
 
 async function getArchive(id: string) {
-  let archiveResult;
   try {
-    archiveResult = await fetchy(`/api/archives/${id}`, "GET");
+    archive.value = await fetchy(`/api/archives/${id}`, "GET");
   } catch (e) {
-    console.log(e);
     return;
   }
-  archive.value = archiveResult;
 }
 
 async function getArchiveContent(id: string) {
@@ -84,7 +82,7 @@ onBeforeMount(async () => {
     <div class="posts">
       <div class="postGrid" v-if="loaded && posts.length !== 0">
         <article v-for="post in posts" :key="post._id">
-          <PostComponent :post="post" @refreshPosts="getArchiveContent" v-if="!memoryToggle" />
+          <PostComponent :post="post" @refreshPosts="getArchiveContent" />
         </article>
       </div>
     </div>
@@ -219,6 +217,7 @@ button {
   position: relative;
   z-index: 2;
   width: 100%;
+  margin-bottom: 100px;
 }
 
 .timestamp {
