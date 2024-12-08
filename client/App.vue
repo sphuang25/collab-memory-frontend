@@ -3,7 +3,7 @@ import { useToastStore } from "@/stores/toast";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import { computed, onBeforeMount } from "vue";
-import { RouterView, useRoute } from "vue-router";
+import { RouterLink, RouterView, useRoute } from "vue-router";
 
 const currentRoute = useRoute();
 const currentRouteName = computed(() => currentRoute.name);
@@ -33,9 +33,6 @@ onBeforeMount(async () => {
           <li>
             <RouterLink v-if="isLoggedIn" :to="{ name: 'Home' }" class="oval" :class="{ clicked: currentRouteName === 'Home' }">Home</RouterLink>
           </li>
-          <li>
-            <RouterLink v-if="isLoggedIn" :to="{ name: 'Profile' }" class="oval" :class="{ clicked: currentRouteName === 'Profile' }">Profile</RouterLink>
-          </li>
           <li v-if="isLoggedIn">
             <RouterLink :to="{ name: 'Threads' }" class="oval" :class="{ clicked: currentRouteName === 'Threads' || currentRouteName === 'Thread Content' }">Threads</RouterLink>
           </li>
@@ -53,7 +50,7 @@ onBeforeMount(async () => {
       </div>
       <div class="content">
         <div class="userProfile">
-          <span v-if="isLoggedIn"> Welcome, {{ currentUsername }} </span>
+          <RouterLink v-if="isLoggedIn" :to="{ name: 'Profile' }" class="welcome-link">View Profile</RouterLink>
         </div>
         <article v-if="toast !== null" class="toast" :class="toast.style">
           <p>{{ toast.message }}</p>
@@ -167,5 +164,23 @@ onBeforeMount(async () => {
   align-items: center;
   font-size: 20px;
   color: #3f3f44;
+}
+
+.welcome-link {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background-color: #6cae75;
+  border-radius: 8px;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.welcome-link:hover {
+  background-color: #558b5a;
 }
 </style>
