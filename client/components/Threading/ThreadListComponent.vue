@@ -94,7 +94,8 @@ article {
   margin-right: 40px;
   border-radius: 50px 50px 0px 0px;
   position: relative;
-  margin-top: 10vh;
+  overflow-y: scroll;
+  top: -75px;
 }
 
 /*How to build trapezoid link: https://stackoverflow.com/questions/7920754/how-to-draw-a-trapezium-trapezoid-with-css3*/
@@ -112,6 +113,8 @@ article {
 
 .threads {
   padding: 1em;
+  overflow-y: scroll;
+  height: 100%;
 }
 
 .row {

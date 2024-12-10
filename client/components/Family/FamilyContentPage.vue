@@ -193,13 +193,13 @@ article {
 }
 
 .oval:hover {
-  background-color: #f8762b;
+  background-color: #d52a26;
   color: white;
   cursor: pointer;
 }
 
 .oval.selected {
-  border: 1px solid black;
+  border: 0.5px solid black;
   outline-style: outset;
 }
 </style>
