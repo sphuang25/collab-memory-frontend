@@ -4,8 +4,7 @@ import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 // Import CreateProfile component
 import { onBeforeMount, ref } from "vue";
-import FamilyCreateForm from "./FamilyCreateForm.vue";
-import FamilyPreview from "./FamilyPreview.vue";
+import FamilyReceivedInviteCard from "./FamilyReceivedInviteCard.vue";
 
 const userStore = useUserStore();
 const { isLoggedIn } = storeToRefs(userStore);
@@ -22,44 +21,22 @@ async function getInvites() {
   }
 }
 
-async function getFamilies() {
-  let familyResults;
-  try {
-    familyResults = await fetchy("/api/family", "GET");
-  } catch (_) {
-    return;
-  }
-  families.value = familyResults;
-}
-
 onBeforeMount(async () => {
-  await getFamilies();
   await getInvites();
 });
 </script>
 
 <template>
   <div v-if="isLoggedIn" class="folderBody">
-    <div id="trapezoid"><h3 class="familySideTitle">Home</h3></div>
-
+    <div id="trapezoid"><h3 class="familySideTitle">Invites</h3></div>
     <section>
-      <h3 class="familyMainTitle">Families List & Invitations</h3>
-      <p class="familyInstr">(Scroll to bottom of page to see your family invitations.)</p>
-      <div class="familyGrid">
-        <div class="familyPreview">
-          <FamilyCreateForm class="familyPreviewChild" @refreshFamilies="getFamilies" />
-        </div>
-        <article v-for="family in families" :key="family._id">
-          <FamilyPreview :family="family" @refreshFamilies="getFamilies" />
-        </article>
-      </div>
       <h3 class="familyMainTitle">Invitations</h3>
       <div v-if="invites.length !== 0">
         <article v-for="invite in invites" :key="invite._id">
-          <FamilyReceivedInviteCard :invite="invite" @refreshFamilies="getFamilies" @refreshInvites="getInvites" />
+          <FamilyReceivedInviteCard :invite="invite" @refreshInvites="getInvites" />
         </article>
       </div>
-      <p v-else>Cleared! There is no invitation.</p>
+      <p class="centerMessage" v-else>Cleared! There is no invitation.</p>
     </section>
   </div>
 </template>
@@ -67,61 +44,41 @@ onBeforeMount(async () => {
 <style scoped>
 section {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 2em;
   margin: 0 auto;
   width: 90%;
-  height: calc(100vh - 200px);
+  min-height: calc(100vh - 200px);
+  align-items: flex-start;
+  justify-content: flex-start;
+  height: auto;
   flex-wrap: wrap;
   padding: 1em;
   box-sizing: border-box;
   overflow-y: scroll;
-  justify-content: center;
+  justify-items: center;
 }
 
 h1 {
   text-align: center;
 }
 
-.familyInstr {
-  margin: 0;
-  margin-bottom: 20px;
-  color: #3f3f44;
+h3 {
   text-align: center;
-}
-.familyGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* Two equal-width columns */
-  gap: 1em; /* Add spacing between grid items */
-  width: 100%; /* Ensure the grid takes up the full width */
-  margin: 0 auto; /* Center the grid if needed */
-  box-sizing: border-box;
+  max-height: 10%;
+  min-height: 10%;
 }
 
-/*article {
+article {
   background-color: var(--base-bg);
   border-radius: 1em;
   display: flex;
   flex-direction: column;
   gap: 0.5em;
-  width: calc(30% - 1em);
+  width: calc(50% - 1em);
   box-sizing: border-box;
   min-width: 100%;
   max-height: 250px;
-}*/
-
-article,
-.familyPreview {
-  width: 100%; /* Grid items inherit width from the grid cell */
-  min-height: 250px;
-  border-radius: 1em;
-  box-sizing: border-box;
-  background-color: var(--base-bg);
-  display: flex;
-  flex-direction: column;
-  gap: 0em;
-  width: 350px;
-  margin-left: 30px;
 }
 
 .articleForInvite {
@@ -133,6 +90,18 @@ article,
   padding: 2em;
   border: 1px solid black;
   outline-style: outset;
+}
+
+.familyPreview {
+  border-radius: 1em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  width: calc(40% - 1em);
+  box-sizing: border-box;
+  max-width: 0%;
+  min-height: 250px;
+  max-height: 250px;
 }
 
 .folderBody {
@@ -183,7 +152,12 @@ div {
   text-align: center;
   font-size: 30px;
   width: 100%;
-  margin: 0;
-  padding-top: 20px;
+}
+
+.centerMessage {
+  color: #3f3f44;
+  text-align: center;
+  font-size: 20px;
+  width: 100%;
 }
 </style>

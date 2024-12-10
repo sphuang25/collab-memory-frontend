@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import { useUserStore } from "@/stores/user";
 import FamilyContentView from "../views/FamilyContentView.vue";
+import FamilyInvitationView from "../views/FamilyInvitationView.vue";
 import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
 import NotFoundView from "../views/NotFoundView.vue";
@@ -31,6 +32,12 @@ const router = createRouter({
       path: "/family/:id",
       name: "Family Content",
       component: FamilyContentView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/invites",
+      name: "Invites",
+      component: FamilyInvitationView,
       meta: { requiresAuth: true },
     },
     {

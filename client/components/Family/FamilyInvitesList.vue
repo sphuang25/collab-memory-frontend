@@ -25,11 +25,11 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <section>
+  <section class="form-container">
     <FamilyInviteForm :familyID="familyID" @refreshInvites="getInvites" />
   </section>
 
-  <section v-if="invites.length !== 0">
+  <section class="form-container" v-if="invites.length !== 0">
     <article v-for="invite in invites" :key="invite._id">
       <FamilySentInviteCard :invite="invite" @refreshInvites="getInvites" />
     </article>
@@ -56,10 +56,21 @@ article {
   border-radius: 1em;
   display: flex;
   flex-direction: column;
+  justify-items: center;
   gap: 0.5em;
   padding: 2em;
   border: 1px solid black;
   outline-style: outset;
+  width: 70%;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: flex;
+  box-sizing: border-box;
 }
 
 .posts {
