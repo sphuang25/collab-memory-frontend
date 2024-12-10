@@ -26,8 +26,6 @@ onMounted(() => {
     <section v-else class="welcome-section">
       <div class="overlay">
         <h1>Welcome to <span class="fancy-font">Fam.ly</span>!</h1>
-        <h3>Communicate and Learn More About your Family within Threads</h3>
-        <h3>Archive Noteable Messages and Memories in your Timeliine</h3>
         <HomeViewLoggedOut />
       </div>
     </section>
