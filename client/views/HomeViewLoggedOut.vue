@@ -10,8 +10,12 @@ const letters = ["F", "A", "M", ".", "L", "Y"];
 <template>
   <div class="folderBody">
     <!-- <div id="trapezoid"><h3 class="threadSideTitle">Threads</h3></div> -->
-    <h3 class="threadMainTitle">Strengthen your connections with discovering more about your family!</h3>
-    <h5 class="threadMainTitle">Communicate and Learn More About your Family within Threads. Archive Noteable Messages and Memories in your Timeliine</h5>
+    <div class="content">
+      <h3 class="threadMainTitle">Strengthen your connections with discovering more about your family!</h3>
+      <h5 class="threadMainTitle">Communicate and learn more about your Family within Threads.</h5>
+      <h5 class="threadMainTitle">Archive noteable messages and memories in your Timeline.</h5>
+    </div>
+
     <section class="threads">
       <article><ThreadCardExample :letter="letters[0]" /></article>
       <article><ThreadCardExample :letter="letters[1]" /></article>
@@ -51,8 +55,14 @@ p,
 
 .threadMainTitle {
   color: #3f3f44;
-  text-align: center;
-  font-size: 30px;
+  text-align: left;
+  font-size: 20px;
+  font-weight: normal;
+  padding-left: 2em;
+}
+
+.content {
+  padding-top: 1em;
 }
 
 article {
