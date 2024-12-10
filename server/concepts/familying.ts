@@ -78,6 +78,12 @@ export default class FamilyingConcept {
     return families;
   }
 
+  async getFamiliesUser(userID: ObjectId) {
+    const familiesMemberDoc = await this.members.readMany({ userID: userID });
+    const families = await this.families.readMany({ _id: { $in: familiesMemberDoc.map((x) => x.familyID) } });
+    return families;
+  }
+
   async getFamilyIDs(userID: ObjectId) {
     const families = await this.members.readMany({ userID: userID });
     const familyIDs = families.map((x) => x.familyID);
@@ -175,11 +181,26 @@ export default class FamilyingConcept {
       return family.familyTitle;
     }
   }
+
+  async getFamilyByName(familyName: string) {
+    const family = await this.families.readOne({ familyTitle: familyName });
+    if (family === null) {
+      throw new FamilyTitleNotExistError(familyName);
+    } else {
+      return family;
+    }
+  }
 }
 
 export class FamilyNotExistError extends NotFoundError {
   constructor(public familyID: ObjectId) {
     super(`Family ${familyID} does not exists.`);
+  }
+}
+
+export class FamilyTitleNotExistError extends NotFoundError {
+  constructor(public familyName: string) {
+    super(`Family with title ${familyName} does not exists.`);
   }
 }
 
