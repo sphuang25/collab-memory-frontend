@@ -182,8 +182,8 @@ export default class FamilyingConcept {
     }
   }
 
-  async getFamilyByName(familyName: string) {
-    const family = await this.families.readOne({ familyTitle: familyName });
+  async getFamilyByName(familyIDs: ObjectId[], familyName: string) {
+    const family = await this.families.readOne({ _id: { $in: familyIDs }, familyTitle: familyName });
     if (family === null) {
       throw new FamilyTitleNotExistError(familyName);
     } else {

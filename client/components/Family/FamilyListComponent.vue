@@ -45,21 +45,13 @@ onBeforeMount(async () => {
     <section>
       <h3 class="familyMainTitle">Families List & Invitations</h3>
       <p class="familyInstr">(Scroll to bottom of page to see your family invitations.)</p>
-      <div class="familyGrid">
-        <div class="familyPreview">
-          <FamilyCreateForm class="familyPreviewChild" @refreshFamilies="getFamilies" />
-        </div>
-        <article v-for="family in families" :key="family._id">
-          <FamilyPreview :family="family" @refreshFamilies="getFamilies" />
-        </article>
-      </div>
-      <h3 class="familyMainTitle">Invitations</h3>
-      <div v-if="invites.length !== 0">
-        <article v-for="invite in invites" :key="invite._id">
-          <FamilyReceivedInviteCard :invite="invite" @refreshFamilies="getFamilies" @refreshInvites="getInvites" />
-        </article>
-      </div>
-      <p v-else>Cleared! There is no invitation.</p>
+      <h3 class="familyMainTitle">Families List</h3>
+      <article v-for="family in families" :key="family._id">
+        <FamilyPreview :family="family" @refreshFamilies="getFamilies" />
+      </article>
+      <article>
+        <FamilyCreateForm class="familyPreview" @refreshFamilies="getFamilies" />
+      </article>
     </section>
   </div>
 </template>
@@ -96,6 +88,7 @@ h1 {
   width: 100%; /* Ensure the grid takes up the full width */
   margin: 0 auto; /* Center the grid if needed */
   box-sizing: border-box;
+  align-content: center;
 }
 
 /*article {

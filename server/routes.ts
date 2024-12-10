@@ -221,7 +221,11 @@ class Routes {
   //Note: removed function to create post when creating a thread!
   async createThreadByFamilyName(session: SessionDoc, title: string, familyname: string) {
     const user = Sessioning.getUser(session);
-    const family = await Familying.getFamilyByName(familyname);
+    const familyOfUser = await Familying.getFamiliesUser(user);
+    const family = await Familying.getFamilyByName(
+      familyOfUser.map((x) => x._id),
+      familyname,
+    );
     const thread = await Threading.createThread(user, title, family._id);
     return { msg: thread.msg, thread: await Responses.thread(thread.thread) };
   }
