@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useNotificationStore } from "@/stores/notification";
 import { useToastStore } from "@/stores/toast";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
@@ -11,7 +12,21 @@ const userStore = useUserStore();
 const { currentUsername, isLoggedIn } = storeToRefs(userStore);
 const { toast } = storeToRefs(useToastStore());
 
-// Make sure to update the session before mounting the app in case the user is already logged in
+const notificationStore = useNotificationStore();
+// Convert to refs for easy usage
+const { showTimelineNotification } = storeToRefs(notificationStore);
+
+// // Control the visibility of the timeline notification indicator
+// const showTimelineNotification = ref(false);
+
+// // Example: trigger the notification after 2 seconds
+// setTimeout(() => {
+//   showTimelineNotification.value = true;
+//   setTimeout(() => {
+//     showTimelineNotification.value = false;
+//   }, 3000);
+// }, 2000);
+
 onBeforeMount(async () => {
   try {
     await userStore.updateSession();
@@ -37,9 +52,15 @@ onBeforeMount(async () => {
             <RouterLink :to="{ name: 'Threads' }" class="oval" :class="{ clicked: currentRouteName === 'Threads' || currentRouteName === 'Thread Content' }">Threads</RouterLink>
           </li>
           <li v-if="isLoggedIn">
-            <RouterLink v-if="isLoggedIn" :to="{ name: 'Timeline' }" class="oval" :class="{ clicked: currentRouteName === 'Timeline' || currentRouteName === ' Timeline Content' }"
-              >Timeline</RouterLink
+            <RouterLink
+              :to="{ name: 'Timeline' }"
+              class="oval"
+              :class="{ clicked: currentRouteName === 'Timeline' || currentRouteName === ' Timeline Content' }"
+              @click="notificationStore.hideTimelineNotification()"
             >
+              Timeline
+              <span v-if="showTimelineNotification" class="notification-circle"></span>
+            </RouterLink>
           </li>
           <div class="bottom">
             <li>
@@ -182,5 +203,16 @@ onBeforeMount(async () => {
 
 .welcome-link:hover {
   background-color: #558b5a;
+}
+
+/* Notification circle style */
+.notification-circle {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-left: 8px;
+  background-color: red;
+  border-radius: 50%;
+  vertical-align: middle;
 }
 </style>

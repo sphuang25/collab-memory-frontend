@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { useNotificationStore } from "@/stores/notification";
 import { ref } from "vue";
 import { fetchy } from "../../utils/fetchy";
 
 const date = ref("");
 const caption = ref("");
+const notificationStore = useNotificationStore();
 const emit = defineEmits(["cancelArchive", "submitted"]);
 const props = defineProps(["selectedPosts"]);
 
@@ -12,6 +14,8 @@ const createArchive = async (posts: Array<string>, timePeriod: string, caption: 
     await fetchy("/api/archives", "POST", {
       body: { posts, timePeriod, caption },
     });
+
+    notificationStore.triggerTimelineNotification(); //trigger notification after success
   } catch (_) {
     return;
   }
