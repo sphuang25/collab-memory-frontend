@@ -59,6 +59,10 @@ onBeforeMount(async () => {
 
 <template>
   <p class="sender">{{ familyName }}</p>
+  <div class="buttonlist">
+    <p class="button"><button class="button-error btn-small pure-button" @click="rejectFamilyInvite">Reject</button></p>
+    <p class="button"><button class="btn-small pure-button" @click="acceptFamilyInvite">Accept</button></p>
+  </div>
   <div class="base">
     <article class="timestamp">
       <p>Invitation From: {{ fromUsername }}</p>
@@ -66,8 +70,6 @@ onBeforeMount(async () => {
     <article class="timestamp">
       <p>Invited at: {{ formatDateDashed(props.invite.dateCreated) }}</p>
     </article>
-    <p class="button"><button class="button-error btn-small pure-button" @click="rejectFamilyInvite">Reject</button></p>
-    <p class="button"><button class="btn-small pure-button" @click="acceptFamilyInvite">Accept</button></p>
   </div>
 </template>
 
@@ -78,6 +80,12 @@ p {
 
 .button {
   right: 100%;
+  padding-left: 1em;
+}
+
+.buttonlist {
+  display: flex;
+  flex-direction: row;
 }
 
 .sender {
@@ -101,11 +109,13 @@ menu {
   justify-content: flex-end;
   font-size: 0.9em;
   font-style: italic;
+  padding-right: 1em;
 }
 
 .base {
   display: flex;
   flex-direction: column;
+  padding-bottom: 1em;
 }
 
 .base article:only-child {

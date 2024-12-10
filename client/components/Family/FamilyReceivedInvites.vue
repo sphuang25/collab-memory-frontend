@@ -4,8 +4,7 @@ import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 // Import CreateProfile component
 import { onBeforeMount, ref } from "vue";
-import FamilyCreateForm from "./FamilyCreateForm.vue";
-import FamilyPreview from "./FamilyPreview.vue";
+import FamilyReceivedInviteCard from "./FamilyReceivedInviteCard.vue";
 
 const userStore = useUserStore();
 const { isLoggedIn } = storeToRefs(userStore);
@@ -22,32 +21,22 @@ async function getInvites() {
   }
 }
 
-async function getFamilies() {
-  let familyResults;
-  try {
-    familyResults = await fetchy("/api/family", "GET");
-  } catch (_) {
-    return;
-  }
-  families.value = familyResults;
-}
-
 onBeforeMount(async () => {
-  await getFamilies();
   await getInvites();
 });
 </script>
 
 <template>
   <div v-if="isLoggedIn" class="folderBody">
-    <div id="trapezoid"><h3 class="familySideTitle">Home</h3></div>
-
+    <div id="trapezoid"><h3 class="familySideTitle">Invites</h3></div>
     <section>
-      <h3 class="familyMainTitle">Families List</h3>
-      <article v-for="family in families" :key="family._id">
-        <FamilyPreview :family="family" @refreshFamilies="getFamilies" />
-      </article>
-      <FamilyCreateForm class="familyPreview" @refreshFamilies="getFamilies" />
+      <h3 class="familyMainTitle">Invitations</h3>
+      <div v-if="invites.length !== 0">
+        <article v-for="invite in invites" :key="invite._id">
+          <FamilyReceivedInviteCard :invite="invite" @refreshInvites="getInvites" />
+        </article>
+      </div>
+      <p class="centerMessage" v-else>Cleared! There is no invitation.</p>
     </section>
   </div>
 </template>
@@ -55,20 +44,29 @@ onBeforeMount(async () => {
 <style scoped>
 section {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 2em;
   margin: 0 auto;
   width: 90%;
-  height: calc(100vh - 200px);
+  min-height: calc(100vh - 200px);
+  align-items: flex-start;
+  justify-content: flex-start;
+  height: auto;
   flex-wrap: wrap;
   padding: 1em;
   box-sizing: border-box;
   overflow-y: scroll;
-  justify-content: center;
+  justify-items: center;
 }
 
 h1 {
   text-align: center;
+}
+
+h3 {
+  text-align: center;
+  max-height: 10%;
+  min-height: 10%;
 }
 
 article {
@@ -153,7 +151,13 @@ div {
   color: #3f3f44;
   text-align: center;
   font-size: 30px;
-  padding: 1em;
+  width: 100%;
+}
+
+.centerMessage {
+  color: #3f3f44;
+  text-align: center;
+  font-size: 20px;
   width: 100%;
 }
 </style>
