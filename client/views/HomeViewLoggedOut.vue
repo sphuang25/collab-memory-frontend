@@ -11,8 +11,7 @@ const letters = ["F", "A", "M", ".", "L", "Y"];
   <div class="folderBody">
     <!-- <div id="trapezoid"><h3 class="threadSideTitle">Threads</h3></div> -->
     <h3 class="threadMainTitle">Strengthen your connections with discovering more about your family!</h3>
-    <h3>Communicate and Learn More About your Family within Threads</h3>
-    <h3>Archive Noteable Messages and Memories in your Timeliine</h3>
+    <h5 class="threadMainTitle">Communicate and Learn More About your Family within Threads. Archive Noteable Messages and Memories in your Timeliine</h5>
     <section class="threads">
       <article><ThreadCardExample :letter="letters[0]" /></article>
       <article><ThreadCardExample :letter="letters[1]" /></article>
