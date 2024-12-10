@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import CreateThreadFormWithFamily from "@/components/Threading/CreateThreadFormWithFamily.vue";
 import ThreadCard from "@/components/Threading/ThreadCard.vue";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
-
 const { isLoggedIn } = storeToRefs(useUserStore());
 const loaded = ref(false);
 const threads = ref<Array<Record<string, string>>>([]);
@@ -29,6 +29,7 @@ onBeforeMount(async () => {
     <h3 class="threadMainTitle">Active Threads</h3>
     <p class="threadInstr">The page shows all the active threads across <strong>all</strong> the families you are in.</p>
     <section class="threads" v-if="loaded">
+      <CreateThreadFormWithFamily @refreshThreads="getThreads" />
       <article v-for="thread in threads" :key="thread._id">
         <ThreadCard :thread="thread" @refreshThreads="getThreads" />
       </article>

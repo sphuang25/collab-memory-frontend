@@ -43,7 +43,7 @@ export default class ThreadingConcept {
   async createThread(creator: ObjectId, title: string, family: ObjectId) {
     const content: Array<ObjectId> = [];
     const _id = await this.threads.createOne({ creator, title, familyID: family, content });
-    return { msg: "Thread successfully created!", thread: await this.threads.readOne({ _id }) };
+    return { msg: `Thread successfully created!`, thread: await this.threads.readOne({ _id }) };
   }
 
   // Returns all posts in thread

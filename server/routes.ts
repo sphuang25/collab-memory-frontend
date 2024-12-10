@@ -217,6 +217,15 @@ class Routes {
     return { msg: thread.msg, thread: await Responses.thread(thread.thread) };
   }
 
+  @Router.post("/threads/familyname/:familyname")
+  //Note: removed function to create post when creating a thread!
+  async createThreadByFamilyName(session: SessionDoc, title: string, familyname: string) {
+    const user = Sessioning.getUser(session);
+    const family = await Familying.getFamilyByName(familyname);
+    const thread = await Threading.createThread(user, title, family._id);
+    return { msg: thread.msg, thread: await Responses.thread(thread.thread) };
+  }
+
   @Router.delete("/threads/:id")
   async deleteThread(session: SessionDoc, id: string) {
     const user = Sessioning.getUser(session);
@@ -301,6 +310,13 @@ class Routes {
   async getFamily(session: SessionDoc) {
     const user = Sessioning.getUser(session);
     const family = await Familying.getFamilies(user);
+    return family;
+  }
+
+  @Router.get("/family/docs")
+  async getFamilyDocs(session: SessionDoc) {
+    const user = Sessioning.getUser(session);
+    const family = await Familying.getFamiliesUser(user);
     return family;
   }
 

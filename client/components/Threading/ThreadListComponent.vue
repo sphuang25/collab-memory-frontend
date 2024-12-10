@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ThreadCreateForm from "@/components/Threading/CreateThreadForm.vue";
+import CreateThreadForm from "@/components/Threading/CreateThreadForm.vue";
 import ThreadCard from "@/components/Threading/ThreadCard.vue";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
@@ -32,7 +32,7 @@ onBeforeMount(async () => {
     <!-- <div id="trapezoid"><h3 class="threadSideTitle">Threads</h3></div> -->
     <h3 class="threadMainTitle">All Active Threads</h3>
     <section class="threads" v-if="loaded">
-      <ThreadCreateForm :familyID="props.familyID" @refreshThreads="getThreads" />
+      <CreateThreadForm :familyID="props.familyID" @refreshThreads="getThreads" />
       <article v-for="thread in threads" :key="thread._id">
         <ThreadCard :thread="thread" @refreshThreads="getThreads" />
       </article>
