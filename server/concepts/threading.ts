@@ -54,6 +54,8 @@ export default class ThreadingConcept {
       for (const p of thread.content) {
         content.push(p);
       }
+    } else {
+      throw new ThreadNotFoundError(_id);
     }
     return { msg: "Thread content retrieved!", content: content };
   }
@@ -81,7 +83,7 @@ export default class ThreadingConcept {
         return { msg: "Post added to thread!" };
       }
     }
-    return { msg: "Post unable to be added to thread!" };
+    throw new ThreadNotFoundError(_id);
   }
 
   // Remove post from thread
@@ -101,7 +103,7 @@ export default class ThreadingConcept {
   async assertCreatorIsUser(_id: ObjectId, user: ObjectId) {
     const thread = await this.threads.readOne({ _id });
     if (!thread) {
-      throw new NotFoundError(`Thread ${_id} does not exist!`);
+      throw new ThreadNotFoundError(_id);
     }
     if (thread.creator.toString() !== user.toString()) {
       throw new ThreadCreatorNotMatchError(user, _id);
@@ -115,5 +117,11 @@ export class ThreadCreatorNotMatchError extends NotAllowedError {
     public readonly _id: ObjectId,
   ) {
     super("{0} is not the author of post {1}!", creator, _id);
+  }
+}
+
+export class ThreadNotFoundError extends NotFoundError {
+  constructor(threadId: ObjectId) {
+    super(`Thread with id ${threadId} not found!`);
   }
 }
