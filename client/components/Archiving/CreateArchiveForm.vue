@@ -82,8 +82,7 @@ textarea::placeholder {
   height: 12vh;
   position: relative;
   border-bottom: 1px solid #ececec;
-  top: 60px;
-  right: 300px;
+  right: 320px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;

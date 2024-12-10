@@ -120,9 +120,8 @@ button[type="button"] {
   flex-direction: column;
   gap: 0.5em;
   padding: 1em;
-  width: calc(40% - 1em);
+  width: 100%;
   box-sizing: border-box;
-  max-width: 40%;
   max-height: 250px;
   min-height: 250px;
 }

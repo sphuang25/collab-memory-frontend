@@ -43,11 +43,23 @@ onBeforeMount(async () => {
     <div id="trapezoid"><h3 class="familySideTitle">Home</h3></div>
 
     <section>
-      <h3 class="familyMainTitle">Families List</h3>
-      <article v-for="family in families" :key="family._id">
-        <FamilyPreview :family="family" @refreshFamilies="getFamilies" />
-      </article>
-      <FamilyCreateForm class="familyPreview" @refreshFamilies="getFamilies" />
+      <h3 class="familyMainTitle">Families List & Invitations</h3>
+      <p class="familyInstr">(Scroll to bottom of page to see your family invitations.)</p>
+      <div class="familyGrid">
+        <div class="familyPreview">
+          <FamilyCreateForm class="familyPreviewChild" @refreshFamilies="getFamilies" />
+        </div>
+        <article v-for="family in families" :key="family._id">
+          <FamilyPreview :family="family" @refreshFamilies="getFamilies" />
+        </article>
+      </div>
+      <h3 class="familyMainTitle">Invitations</h3>
+      <div v-if="invites.length !== 0">
+        <article v-for="invite in invites" :key="invite._id">
+          <FamilyReceivedInviteCard :invite="invite" @refreshFamilies="getFamilies" @refreshInvites="getInvites" />
+        </article>
+      </div>
+      <p v-else>Cleared! There is no invitation.</p>
     </section>
   </div>
 </template>
@@ -71,16 +83,45 @@ h1 {
   text-align: center;
 }
 
-article {
+.familyInstr {
+  margin: 0;
+  margin-bottom: 20px;
+  color: #3f3f44;
+  text-align: center;
+}
+.familyGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Two equal-width columns */
+  gap: 1em; /* Add spacing between grid items */
+  width: 100%; /* Ensure the grid takes up the full width */
+  margin: 0 auto; /* Center the grid if needed */
+  box-sizing: border-box;
+}
+
+/*article {
   background-color: var(--base-bg);
   border-radius: 1em;
   display: flex;
   flex-direction: column;
   gap: 0.5em;
-  width: calc(50% - 1em);
+  width: calc(30% - 1em);
   box-sizing: border-box;
   min-width: 100%;
   max-height: 250px;
+}*/
+
+article,
+.familyPreview {
+  width: 100%; /* Grid items inherit width from the grid cell */
+  min-height: 250px;
+  border-radius: 1em;
+  box-sizing: border-box;
+  background-color: var(--base-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 0em;
+  width: 350px;
+  margin-left: 30px;
 }
 
 .articleForInvite {
@@ -92,18 +133,6 @@ article {
   padding: 2em;
   border: 1px solid black;
   outline-style: outset;
-}
-
-.familyPreview {
-  border-radius: 1em;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5em;
-  width: calc(40% - 1em);
-  box-sizing: border-box;
-  max-width: 0%;
-  min-height: 250px;
-  max-height: 250px;
 }
 
 .folderBody {
@@ -153,7 +182,8 @@ div {
   color: #3f3f44;
   text-align: center;
   font-size: 30px;
-  padding: 1em;
   width: 100%;
+  margin: 0;
+  padding-top: 20px;
 }
 </style>
