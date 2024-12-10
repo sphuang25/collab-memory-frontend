@@ -27,6 +27,7 @@ onBeforeMount(async () => {
   <div v-if="isLoggedIn" class="folderBody">
     <!-- <div id="trapezoid"><h3 class="threadSideTitle">Threads</h3></div> -->
     <h3 class="threadMainTitle">Active Threads</h3>
+    <p class="threadInstr">The page shows all the active threads across <strong>all</strong> the families you are in.</p>
     <section class="threads" v-if="loaded">
       <article v-for="thread in threads" :key="thread._id">
         <ThreadCard :thread="thread" @refreshThreads="getThreads" />
@@ -67,6 +68,13 @@ p,
   color: #3f3f44;
   text-align: center;
   font-size: 30px;
+  padding-top: 30px;
+}
+
+.threadInstr {
+  text-align: center;
+  color: #3f3f44;
+  margin-bottom: 20px;
 }
 
 article {

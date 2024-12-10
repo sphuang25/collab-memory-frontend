@@ -53,7 +53,9 @@ const deletePost = async () => {
           "
         />
       </div>
-      <p class="postContent">{{ props.post.content }}</p>
+      <div class="postContentContainer">
+        <p class="postContent">{{ props.post.content }}</p>
+      </div>
       <p class="author">by: {{ props.post.author }}</p>
       <p class="date">{{ formatDateDashed(props.post.dateCreated) }}</p>
     </div>
@@ -102,9 +104,15 @@ p {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 .postContent {
-  font-size: 18px;
-  position: absolute;
+  font-size: 16px;
   top: 50px;
+}
+.postContentContainer {
+  height: 120px;
+  margin-top: 20px;
+  overflow-y: auto; /* Enables vertical scrolling */
+  padding: 5px; /* Optional padding for better spacing */
+  box-sizing: border-box; /* Ensures padding is included in the height calculation */
 }
 .date {
   position: absolute;

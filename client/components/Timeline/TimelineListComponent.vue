@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import TimelineFolder from "@/components/Timeline/TimelineFolder.vue";
 import { useUserStore } from "@/stores/user";
 import { fetchy } from "@/utils/fetchy";
 import { storeToRefs } from "pinia";
 import { onBeforeMount, ref } from "vue";
-import TimelineFolder from "@/components/Timeline/TimelineFolder.vue";
 
 const { isLoggedIn } = storeToRefs(useUserStore());
 

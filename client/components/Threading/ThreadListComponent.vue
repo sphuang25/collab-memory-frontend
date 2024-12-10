@@ -30,7 +30,7 @@ onBeforeMount(async () => {
 <template>
   <div v-if="isLoggedIn" class="folderBody">
     <!-- <div id="trapezoid"><h3 class="threadSideTitle">Threads</h3></div> -->
-    <h3 class="threadMainTitle">Active Threads</h3>
+    <h3 class="threadMainTitle">All Active Threads</h3>
     <section class="threads" v-if="loaded">
       <ThreadCreateForm :familyID="props.familyID" @refreshThreads="getThreads" />
       <article v-for="thread in threads" :key="thread._id">

@@ -108,7 +108,7 @@ onBeforeMount(async () => {
     <div id="trapezoid"><h3 class="threadSideTitle" v-if="!memoryToggle">Threads</h3></div>
     <div id="addMemorySign" :class="{ active: memoryToggle }" @click="toggleMemory()">
       <p id="plus">+</p>
-      <p id="memoryText" v-if="!memoryToggle">Make a memory</p>
+      <p id="memoryText" v-if="!memoryToggle">Create an archive</p>
     </div>
     <div class="threadHeader">
       <div class="threadTitleDate">
@@ -143,8 +143,8 @@ onBeforeMount(async () => {
         <textarea class="textInput postText" v-model="content" placeholder="Contribute to thread"></textarea>
         <div class="icons">
           <button type="submit" aria-label="Enter Text" @click="setContentType('text')"><i class="pi pi-arrow-circle-up" style="font-size: 2rem"></i></button>
-          <button type="submit" aria-label="Record Audio"><i class="pi pi-microphone" style="font-size: 2rem"></i></button>
-          <button type="submit" aria-label="Post Image"><i class="pi pi-image" style="font-size: 2rem"></i></button>
+          <!---<button type="submit" aria-label="Record Audio"><i class="pi pi-microphone" style="font-size: 2rem"></i></button>
+          <button type="submit" aria-label="Post Image"><i class="pi pi-image" style="font-size: 2rem"></i></button>-->
         </div>
       </form>
     </div>
