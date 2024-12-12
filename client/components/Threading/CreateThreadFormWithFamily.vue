@@ -53,7 +53,7 @@ onBeforeMount(async () => {
           </option>
         </select>
       </div>
-      <textarea v-model="title" placeholder="Enter thread title"></textarea>
+      <textarea v-model="title" placeholder="Enter thread title" required></textarea>
       <button type="submit">Create</button>
       <button type="button" @click="toggleForm">Cancel</button>
     </form>

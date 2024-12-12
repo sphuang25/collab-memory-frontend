@@ -43,8 +43,6 @@ onBeforeMount(async () => {
     <div id="trapezoid"><h3 class="familySideTitle">Home</h3></div>
 
     <section>
-      <h3 class="familyMainTitle">Families List & Invitations</h3>
-      <p class="familyInstr">(Scroll to bottom of page to see your family invitations.)</p>
       <h3 class="familyMainTitle">Families List</h3>
       <article v-for="family in families" :key="family._id">
         <FamilyPreview :family="family" @refreshFamilies="getFamilies" />

@@ -34,7 +34,7 @@ const emptyForm = () => {
     <div class="archiveBox">
       <textarea v-model="caption" placeholder="What is this archive about?" required> </textarea>
       <label id="when" for="start">Date of memory:</label>
-      <input v-model="date" type="date" id="start" name="trip-start" value="2024-01-01" min="1900-01-01" max="2030-01-01" />
+      <input v-model="date" type="date" id="start" name="trip-start" value="2024-01-01" min="1900-01-01" max="2030-01-01" required />
       <div class="buttonDiv">
         <div class="instructionsBox">
           <p v-if="selectedPosts.length === 0" class="instructions">Select posts from below!</p>
