@@ -30,6 +30,9 @@ onBeforeMount(async () => {
   <div v-if="isLoggedIn" class="folderBody">
     <div id="trapezoid"><h3 class="archiveSideTitle">Archives</h3></div>
     <h3 class="archiveMainTitle">Family Archives</h3>
+    <p class="archiveInstr">
+      Archives are a way to save groups of posts from each thread you are a part of. This page shows <strong>all</strong> the archives you have created across the threads you are in.
+    </p>
     <section class="archives" v-if="loaded">
       <article v-for="archive in archives" :key="archive._id">
         <TimelineFolder :archive="archive" @refreshArchives="getArchives" />
@@ -65,7 +68,11 @@ p,
   color: #3f3f44;
   text-align: center;
 }
-
+.archiveInstr {
+  text-align: center;
+  color: #3f3f44;
+  margin-bottom: 20px;
+}
 .archiveMainTitle {
   color: #3f3f44;
   text-align: center;
